@@ -40,9 +40,17 @@ under the License.
                 'echarts'
             ], function (echarts) {
                 var myChart;
-                var lineCount = 20;
-                var pointCount = 10000;
-                var chartCount = 20;
+                var lineCount = 4000;
+                var pointCount = 9000;
+                var chartCount = 1;
+
+                const optimizedMode = true;
+                const optimizedModeThreshold = 2000;
+
+                console.log('lineCount: ', lineCount);
+                console.log('pointCount: ', pointCount);
+                console.log('optimizedMode: ', optimizedMode);
+                console.log('optimizedModeThreshold: ', optimizedModeThreshold);
 
                 var option = {
                     tooltip : {
@@ -52,15 +60,16 @@ under the License.
                         }
                     },
                     legend: {
+                        show: false,
                         data:[]
                     },
-                    dataZoom: [{
-                        show: true,
-                        realtime: true,
-                        // showDataShadow: false,
-                        start: 10,
-                        end: 60
-                    }],
+                    // dataZoom: [{
+                    //     show: true,
+                    //     realtime: true,
+                    //     // showDataShadow: false,
+                    //     start: 10,
+                    //     end: 60
+                    // }],
                     xAxis : [
                         {
                             type : 'time'
@@ -99,7 +108,8 @@ under the License.
                     }
 
                   option.legend.data.push( 'line' + i );
-                  option.series.push({
+
+                  const series = {
                     name: 'line' + i,
                     type: 'line',
                     hoverAnimation: false,
@@ -110,16 +120,30 @@ under the License.
                         y: 'value'
                     },
                     data: values,
-                    lineStyle: lineStyle
-                  });
+                    lineStyle: lineStyle,
+                    sampling: 'lttb',
+                    // https://echarts.apache.org/en/option.html#series-line.zlevel
+                    // zlevel: i > 10 ? 1 : 2,
+                  };
+
+                  let zlevel = undefined;
+                  if (optimizedMode && lineCount > optimizedModeThreshold) {
+                    if (i > optimizedModeThreshold) {
+                        series.zlevel = 1;
+                    } else {
+                        // series.zlevel = 1;
+                    }
+                  }
+                  option.series.push(series);
                 }
+                console.log(option.series);
 
                 function refresh(isBtnRefresh){
                     var start = new Date();
                     console.profile('render');
                     for( var n = 0; n < chartCount; n++ ) {
                         var el = document.createElement('div');
-                      el.innerHTML = '<h1>'+n+'</h1><div id="chart'+n+'" style="width: 860px; height: 320px"></div>';
+                      el.innerHTML = '<h1>'+n+'</h1><div id="chart'+n+'" style="width: 1200px; height: 500px"></div>';
                       document.body.appendChild(el);
 
                       myChart = echarts.init(document.getElementById('chart'+n));
