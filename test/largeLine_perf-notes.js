@@ -1,29 +1,37 @@
 // https://echarts.apache.org/examples/en/editor.html?c=line-simple
 
 const option = {
+    title: {
+        text: "4000 series",
+        left: "center",
+    },
     xAxis: {
         type: "category",
-        data: ["1", "2", "4", "6"],
+        data: ["1", "2", "3", "4", "5", "6"],
         name: "Chart number",
-        // name: 'Total Series',
         nameLocation: "middle",
         nameGap: 40,
+        axisLabel: {
+            interval: 0,
+        },
+        axisTick: {
+            show: false,
+        },
     },
     yAxis: {
         type: "value",
         name: "Render time (ms)",
         nameRotate: 90,
         nameLocation: "middle",
-        nameGap: 40,
+        nameGap: 50,
     },
     series: [
         {
             type: "line",
-            data: [1750, 4700, 5683, 8000, 10000, 12000],
+            data: [1.75, 4.7, 5.683, 8.0, 10.0, 12.0],
         },
     ],
 };
-
 // ## Perf Tests
 
 // http://127.0.0.1:8080/test/largeLine.html
@@ -128,7 +136,6 @@ const option = {
 // 4000: 7942
 // 4000: 12550
 // 4000: 7568
-// 4000: 14593
 
 // ## Five Charts - 9000 points - Unoptimized
 
