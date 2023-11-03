@@ -33,18 +33,25 @@ under the License.
                 margin: 0;
             }
         </style>
-        <div id="timing"></div>
+        <div id="timing" style="padding: 10"></div>
         <script>
 
             require([
                 'echarts'
             ], function (echarts) {
                 var myChart;
+
+                // prev benchmarks 11/2
+                // var lineCount = 4000;
+                // var pointCount = 9000;
+                // var chartCount = 1;
+
+
                 var lineCount = 4000;
                 var pointCount = 9000;
-                var chartCount = 1;
+                var chartCount = 4;
 
-                const optimizedMode = true;
+                const optimizedMode = false;
                 const optimizedModeThreshold = 2000;
 
                 console.log('lineCount: ', lineCount);
@@ -127,13 +134,24 @@ under the License.
                   };
 
                   let zlevel = undefined;
+                //   if (optimizedMode && lineCount > optimizedModeThreshold) {
+                //     if (i > optimizedModeThreshold) {
+                //         series.zlevel = 1;
+                //     } else {
+                //         series.zlevel = 2;
+                //     }
+                //   }
+
                   if (optimizedMode && lineCount > optimizedModeThreshold) {
-                    if (i > optimizedModeThreshold) {
-                        series.zlevel = 1;
+                    if (i > lineCount * 0.75) {
+                        series.zlevel = 3;
+                    } else if (i > lineCount * 0.5) {
+                        series.zlevel = 2;
                     } else {
-                        // series.zlevel = 1;
+                        series.zlevel = 1;
                     }
-                  }
+                   }
+                  
                   option.series.push(series);
                 }
                 console.log(option.series);
@@ -143,7 +161,7 @@ under the License.
                     console.profile('render');
                     for( var n = 0; n < chartCount; n++ ) {
                         var el = document.createElement('div');
-                      el.innerHTML = '<h1>'+n+'</h1><div id="chart'+n+'" style="width: 1200px; height: 500px"></div>';
+                      el.innerHTML = '<div id="chart'+n+'" style="width: 1200px; height: 500px"></div>';
                       document.body.appendChild(el);
 
                       myChart = echarts.init(document.getElementById('chart'+n));
@@ -152,7 +170,7 @@ under the License.
                     console.profileEnd('render');
                     setTimeout(function () {
                         var end = new Date();
-                        document.getElementById('timing').innerHTML = 'Graphs loaded in ' + ( end - start ) + ' ms.';
+                        document.getElementById('timing').innerHTML = chartCount + ' Graphs with ' + lineCount + ' series each, loaded in ' + ( end - start ) + ' ms.';
                     });
                 };
 
