@@ -1242,30 +1242,20 @@ class DataStore {
         }
 
         // Mutable mode: create a deep clone
-        const indicesConstructor = this._indices.constructor as typeof Int32Array;
-        const clonedIndices = new indicesConstructor(this._indices.length);
-        clonedIndices.set(this._indices);
-        return clonedIndices;
+        const Ctor = this._indices.constructor as DataArrayLikeConstructor;
+        let indices;
+        if (Ctor === Array) {
+            const thisCount = this._indices.length;
+            indices = new Ctor(thisCount);
+            for (let i = 0; i < thisCount; i++) {
+                indices[i] = this._indices[i];
+            }
+        }
+        else {
+            indices = new (Ctor as DataTypedArrayConstructor)(this._indices);
+        }
+        return indices;
     }
-
-    // private _cloneIndices(): DataStore['_indices'] {
-    //     if (this._indices) {
-    //         const Ctor = this._indices.constructor as DataArrayLikeConstructor;
-    //         let indices;
-    //         if (Ctor === Array) {
-    //             const thisCount = this._indices.length;
-    //             indices = new Ctor(thisCount);
-    //             for (let i = 0; i < thisCount; i++) {
-    //                 indices[i] = this._indices[i];
-    //             }
-    //         }
-    //         else {
-    //             indices = new (Ctor as DataTypedArrayConstructor)(this._indices);
-    //         }
-    //         return indices;
-    //     }
-    //     return null;
-    // }
 
     private _getRawIdxIdentity(idx: number): number {
         return idx;
