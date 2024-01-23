@@ -178,10 +178,17 @@ class DataStore {
 
     private _calcDimNameToIdx = createHashMap<DimensionIndex, DimensionName>();
 
-    // TODO: make immutableMode configurable
+    // TODO (immutableMode): make immutableMode configurable
     private immutableMode = true;
 
     defaultDimValueGetter: DimValueGetter;
+
+    /**
+     * Setter for immutableMode to bypass cloning logic
+     */
+    setImmutableMode(mode: boolean): void {
+        this.immutableMode = mode;
+    }
 
     /**
      * Initialize from data
@@ -197,6 +204,8 @@ class DataStore {
                 'Invalid data provider.'
             );
         }
+
+        this.setImmutableMode(true);
 
         this._provider = provider;
 
@@ -1196,6 +1205,7 @@ class DataStore {
      * @param clonedDims Determine which dims to clone. Will share the data if not specified.
      */
     clone(clonedDims?: DimensionIndex[], ignoreIndices?: boolean): DataStore {
+        // const target = new DataStore(this.immutableMode);
         const target = new DataStore();
         const chunks = this._chunks;
         const clonedDimsMap = clonedDims && reduce(clonedDims, (obj, dimIdx) => {
@@ -1205,21 +1215,49 @@ class DataStore {
 
         if (clonedDimsMap) {
             for (let i = 0; i < chunks.length; i++) {
-                // Not clone if dim is not picked.
-                target._chunks[i] = !clonedDimsMap[i] ? chunks[i] : cloneChunk(chunks[i]);
+                // Skip cloning if in immutable mode
+                target._chunks[i] = !clonedDimsMap[i] || this.immutableMode ? chunks[i] : cloneChunk(chunks[i]);
             }
         }
         else {
-            target._chunks = chunks;
+            target._chunks = this.immutableMode ? chunks : chunks.map(chunk => cloneChunk(chunk));
         }
+
         this._copyCommonProps(target);
 
         if (!ignoreIndices) {
-            target._indices = this._cloneIndices();
+            target._indices = this.immutableMode ? this._indices : this._cloneIndices();
         }
+
         target._updateGetRawIdx();
         return target;
     }
+
+    // cloneOriginal(clonedDims?: DimensionIndex[], ignoreIndices?: boolean): DataStore {
+    //     const target = new DataStore();
+    //     const chunks = this._chunks;
+    //     const clonedDimsMap = clonedDims && reduce(clonedDims, (obj, dimIdx) => {
+    //         obj[dimIdx] = true;
+    //         return obj;
+    //     }, {} as Record<DimensionIndex, boolean>);
+
+    //     if (clonedDimsMap) {
+    //         for (let i = 0; i < chunks.length; i++) {
+    //             // Not clone if dim is not picked.
+    //             target._chunks[i] = !clonedDimsMap[i] ? chunks[i] : cloneChunk(chunks[i]);
+    //         }
+    //     }
+    //     else {
+    //         target._chunks = chunks;
+    //     }
+    //     this._copyCommonProps(target);
+
+    //     if (!ignoreIndices) {
+    //         target._indices = this._cloneIndices();
+    //     }
+    //     target._updateGetRawIdx();
+    //     return target;
+    // }
 
     private _copyCommonProps(target: DataStore): void {
         target._count = this._count;
@@ -1228,34 +1266,56 @@ class DataStore {
         target._dimensions = this._dimensions;
 
         target._extent = clone(this._extent);
+        // TODO (immutableMode): should this be where immutableMode condition is added?
         target._rawExtent = clone(this._rawExtent);
     }
 
     private _cloneIndices(): DataStore['_indices'] {
-        if (!this._indices) {
-            return null;
-        }
-
-        if (this.immutableMode) {
-            // TODO: test all charts to confirm whether they mutate data or not
-            return this._indices;
-        }
-
-        // Mutable mode: create a deep clone
-        const Ctor = this._indices.constructor as DataArrayLikeConstructor;
-        let indices;
-        if (Ctor === Array) {
-            const thisCount = this._indices.length;
-            indices = new Ctor(thisCount);
-            for (let i = 0; i < thisCount; i++) {
-                indices[i] = this._indices[i];
+        if (this._indices) {
+            const Ctor = this._indices.constructor as DataArrayLikeConstructor;
+            let indices;
+            if (Ctor === Array) {
+                const thisCount = this._indices.length;
+                indices = new Ctor(thisCount);
+                for (let i = 0; i < thisCount; i++) {
+                    indices[i] = this._indices[i];
+                }
             }
+            else {
+                indices = new (Ctor as DataTypedArrayConstructor)(this._indices);
+            }
+            return indices;
         }
-        else {
-            indices = new (Ctor as DataTypedArrayConstructor)(this._indices);
-        }
-        return indices;
+        return null;
     }
+
+    // private _cloneIndicesDebug(): DataStore['_indices'] {
+    //     if (!this._indices) {
+    //         return null;
+    //     }
+
+    //     if (this.immutableMode) {
+    //         // TODO (immutableMode): test all charts to confirm whether they mutate data or not
+    //         // - http://127.0.0.1:8080/test/areaLineUpdate.html
+    //         return this._indices;
+    //     }
+
+    //     // Mutable mode: create a deep clone
+
+    //     const Ctor = this._indices.constructor as DataArrayLikeConstructor;
+    //     let indices;
+    //     if (Ctor === Array) {
+    //         const thisCount = this._indices.length;
+    //         indices = new Ctor(thisCount);
+    //         for (let i = 0; i < thisCount; i++) {
+    //             indices[i] = this._indices[i];
+    //         }
+    //     }
+    //     else {
+    //         indices = new (Ctor as DataTypedArrayConstructor)(this._indices);
+    //     }
+    //     return indices;
+    // }
 
     private _getRawIdxIdentity(idx: number): number {
         return idx;
