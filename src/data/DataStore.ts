@@ -178,17 +178,11 @@ class DataStore {
 
     private _calcDimNameToIdx = createHashMap<DimensionIndex, DimensionName>();
 
-    // TODO (immutableMode): make immutableMode configurable
+    // TODO (immutableMode): make immutableMode configurable, similar to option params replaceMerge, notMerge, lazyUpdate
+    // - https://echarts.apache.org/en/api.html#echartsInstance.setOption
     private immutableMode = true;
 
     defaultDimValueGetter: DimValueGetter;
-
-    /**
-     * Setter for immutableMode to bypass cloning logic
-     */
-    setImmutableMode(mode: boolean): void {
-        this.immutableMode = mode;
-    }
 
     /**
      * Initialize from data
@@ -206,10 +200,6 @@ class DataStore {
         }
 
         this._provider = provider;
-
-        // TODO (immutableMode): remove after immutableMode is configurable, similar to option params replaceMerge, notMerge, lazyUpdate
-        // - https://echarts.apache.org/en/api.html#echartsInstance.setOption
-        this.setImmutableMode(true);
 
         // Clear
         this._chunks = [];
