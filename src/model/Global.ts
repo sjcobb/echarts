@@ -65,6 +65,7 @@ import { error, warn } from '../util/log';
 
 export interface GlobalModelSetOptionOpts {
     replaceMerge: ComponentMainType | ComponentMainType[];
+    immutableMode?: boolean;
 }
 export interface InnerSetOptionOpts {
     replaceMergeMainTypeMap: HashMap<boolean, string>;
@@ -1075,6 +1076,12 @@ function normalizeSetOptionInput(opts: GlobalModelSetOptionOpts): InnerSetOption
         }
         replaceMergeMainTypeMap.set(mainType, true);
     });
+
+    // Pass immutableMode to opt out of cloning
+    if (opts.immutableMode) {
+      replaceMergeMainTypeMap.set('immutableMode', true);
+    }
+
     return {
         replaceMergeMainTypeMap: replaceMergeMainTypeMap
     };

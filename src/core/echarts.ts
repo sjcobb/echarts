@@ -221,6 +221,7 @@ export interface SetOptionOpts {
     // other components of the certain `mainType` will be removed.
     replaceMerge?: GlobalModelSetOptionOpts['replaceMerge'];
     transition?: SetOptionTransitionOpt
+    immutableMode?: boolean;
 };
 
 export interface ResizeOpts {
@@ -605,10 +606,15 @@ class ECharts extends Eventful<ECEventDefinition> {
      * @param opts.replaceMerge Default undefined.
      */
     // Expose to user full option.
-    setOption<Opt extends ECBasicOption>(option: Opt, notMerge?: boolean, lazyUpdate?: boolean): void;
+    setOption<Opt extends ECBasicOption>(
+        option: Opt,
+        notMerge?: boolean,
+        lazyUpdate?: boolean,
+        immutableMode?: boolean
+      ): void;
     setOption<Opt extends ECBasicOption>(option: Opt, opts?: SetOptionOpts): void;
     /* eslint-disable-next-line */
-    setOption<Opt extends ECBasicOption>(option: Opt, notMerge?: boolean | SetOptionOpts, lazyUpdate?: boolean): void {
+    setOption<Opt extends ECBasicOption>(option: Opt, notMerge?: boolean | SetOptionOpts, lazyUpdate?: boolean, immutableMode?: boolean): void {
         if (this[IN_MAIN_PROCESS_KEY]) {
             if (__DEV__) {
                 error('`setOption` should not be called during main process.');
@@ -643,7 +649,7 @@ class ECharts extends Eventful<ECEventDefinition> {
             ecModel.init(null, null, null, theme, this._locale, optionManager);
         }
 
-        this._model.setOption(option as ECBasicOption, { replaceMerge }, optionPreprocessorFuncs);
+        this._model.setOption(option as ECBasicOption, { replaceMerge, immutableMode }, optionPreprocessorFuncs);
 
         const updateParams = {
             seriesTransition: transitionOpt,

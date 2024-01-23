@@ -108,7 +108,11 @@ class OptionManager {
         // Caution: some series modify option data, if do not clone,
         // it should ensure that the repeat modify correctly
         // (create a new object when modify itself).
-        rawOption = clone(rawOption);
+        // Use immutableMode option to opt out of cloning.
+        const immutableMode = opt.replaceMergeMainTypeMap.data.get('immutableMode') ?? false;
+        if (!immutableMode) {
+          rawOption = clone(rawOption);
+        }
 
         // FIXME
         // If some property is set in timeline options or media option but
