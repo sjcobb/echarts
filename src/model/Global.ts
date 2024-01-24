@@ -1078,7 +1078,7 @@ function normalizeSetOptionInput(opts: GlobalModelSetOptionOpts): InnerSetOption
     });
 
     // Pass immutableMode to opt out of cloning
-    if (opts.immutableMode) {
+    if (opts && opts.immutableMode) {
       replaceMergeMainTypeMap.set('immutableMode', true);
     }
 
