@@ -635,6 +635,7 @@ class ECharts extends Eventful<ECEventDefinition> {
             silent = notMerge.silent;
             replaceMerge = notMerge.replaceMerge;
             transitionOpt = notMerge.transition;
+            immutableMode = notMerge.immutableMode;
             notMerge = notMerge.notMerge;
         }
 
