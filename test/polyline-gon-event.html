@@ -63,7 +63,6 @@ under the License.
                             areaStyle: {},
                             stack: 'a',
                             data: data,
-                            triggerLineEvent: true
                         },
                         {
                             name: 'line1',
@@ -71,8 +70,30 @@ under the License.
                             stack: 'a',
                             areaStyle: {},
                             data: data.map(function (d) {
-                                return d * 2;
-                            })
+                                return d * 1.25;
+                            }),
+                            triggerLineEvent: true
+                        },
+                        {
+                            name: 'line2',
+                            type: 'line',
+                            stack: 'a',
+                            areaStyle: {},
+                            data: data.map(function (d) {
+                                return d * 0.5;
+                            }),
+                            triggerAreaEvent: true
+                        },
+                        {
+                            name: 'line3',
+                            type: 'line',
+                            stack: 'a',
+                            areaStyle: {},
+                            data: data.map(function (d) {
+                                return d * 0.25;
+                            }),
+                            triggerLineEvent: true,
+                            triggerAreaEvent: true
                         },
                     ]
                 });
