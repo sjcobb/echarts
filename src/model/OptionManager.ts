@@ -95,6 +95,8 @@ class OptionManager {
         optionPreprocessorFuncs: OptionPreprocessor[],
         opt: InnerSetOptionOpts
     ): void {
+        // eslint-disable-next-line
+        console.log('(OptionManager) - setOption -> opt: ', opt);
         if (rawOption) {
             // That set dat primitive is dangerous if user reuse the data when setOption again.
             each(normalizeToArray((rawOption as ECUnitOption).series), function (series: SeriesOption) {
@@ -108,7 +110,17 @@ class OptionManager {
         // Caution: some series modify option data, if do not clone,
         // it should ensure that the repeat modify correctly
         // (create a new object when modify itself).
-        rawOption = clone(rawOption);
+        // Use immutableMode option to opt out of cloning.
+        const immutableMode = opt.replaceMergeMainTypeMap.data.get('immutableMode') ?? false;
+        if (!immutableMode) {
+            // eslint-disable-next-line
+            console.log('(OptionManager) - CLONED rawOption: ', rawOption);
+            rawOption = clone(rawOption);
+        }
+        else {
+            // eslint-disable-next-line
+            console.log('(OptionManager) - BYPASSED clone rawOption: ', rawOption);
+        }
 
         // FIXME
         // If some property is set in timeline options or media option but
