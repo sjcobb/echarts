@@ -81,6 +81,27 @@ export default function dataStack(ecModel: GlobalModel) {
 }
 
 function calculateStack(stackInfoList: StackInfo[]) {
+    const dataLength = stackInfoList[0].data.count();
+    const isPercentStacked = stackInfoList.some((info) => info.seriesModel.get('stackStrategy') === 'percent');
+
+    // Total values for each index, used only for 'percent' stackStrategy.
+    const totals = isPercentStacked ? Array(dataLength).fill(0) : undefined;
+    const cumulativePercents = isPercentStacked ? Array(dataLength).fill(0) : undefined;
+
+    if (isPercentStacked && totals) {
+        each(stackInfoList, (stackInfo) => {
+            const data = stackInfo.data;
+            const stackedDimension = stackInfo.stackedDimension;
+
+            for (let i = 0; i < dataLength; i++) {
+                const val = data.get(stackedDimension, i) as number;
+                if (!isNaN(val)) {
+                    totals[i] = addSafe(totals[i], val);
+                }
+            }
+        });
+    }
+
     each(stackInfoList, function (targetStackInfo, idxInStack) {
         const resultVal: number[] = [];
         const resultNaN = [NaN, NaN];
@@ -98,6 +119,17 @@ function calculateStack(stackInfoList: StackInfo[]) {
             // should also be NaN, to draw a appropriate belt area.
             if (isNaN(sum)) {
                 return resultNaN;
+            }
+
+            // Percent stack logic to normalize each value as a percentage of the total per index.
+            if (stackStrategy === 'percent') {
+                const total = totals![dataIndex];
+                const percent = total === 0 ? 0 : (sum / total) * 100;
+                const stackedOver = cumulativePercents![dataIndex];
+                cumulativePercents![dataIndex] = addSafe(stackedOver, percent);
+                resultVal[0] = cumulativePercents![dataIndex];
+                resultVal[1] = stackedOver;
+                return resultVal;
             }
 
             let byValue: number;

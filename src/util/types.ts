@@ -1678,7 +1678,7 @@ export interface SeriesLargeOptionMixin {
 }
 export interface SeriesStackOptionMixin {
     stack?: string
-    stackStrategy?: 'samesign' | 'all' | 'positive' | 'negative';
+    stackStrategy?: 'samesign' | 'all' | 'positive' | 'negative' | 'percent';
 }
 
 type SamplingFunc = (frame: ArrayLike<number>) => number;
