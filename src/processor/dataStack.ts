@@ -85,24 +85,9 @@ function calculateStack(stackInfoList: StackInfo[]) {
 
     // Check if any series in this stack group is using 'percent' stackStrategy.
     const isPercentStacked = stackInfoList.some((info) => info.seriesModel.get('stackStrategy') === 'percent');
-    // Accumulates the total value across all series at each index.
-    const totals = isPercentStacked ? Array(dataLength).fill(0) : undefined;
-    // Tracks running total of percent values at each index.
+    const totals = isPercentStacked ? accumulateTotals(stackInfoList, dataLength) : undefined;
+    // Used to track running total of percent values at each index.
     const cumulativePercents = isPercentStacked ? Array(dataLength).fill(0) : undefined;
-
-    if (isPercentStacked && totals) {
-        // Compute total sum per index across all series in the stack.
-        each(stackInfoList, (stackInfo) => {
-            const data = stackInfo.data;
-            const stackedDimension = stackInfo.stackedDimension;
-            for (let i = 0; i < dataLength; i++) {
-                const val = data.get(stackedDimension, i) as number;
-                if (!isNaN(val)) {
-                    totals[i] = addSafe(totals[i], val);
-                }
-            }
-        });
-    }
 
     each(stackInfoList, function (targetStackInfo, idxInStack) {
         const resultVal: number[] = [];
@@ -184,4 +169,22 @@ function calculateStack(stackInfoList: StackInfo[]) {
             return resultVal;
         });
     });
+}
+
+/**
+ * Accumulates the total value across all series at each index.
+ */
+function accumulateTotals(stackInfoList: StackInfo[], dataLength: number): number[] {
+    const totals = Array(dataLength).fill(0);
+    each(stackInfoList, (stackInfo) => {
+        const data = stackInfo.data;
+        const dim = stackInfo.stackedDimension;
+        for (let i = 0; i < dataLength; i++) {
+            const val = data.get(dim, i) as number;
+            if (!isNaN(val)) {
+                totals[i] = addSafe(totals[i], val);
+            }
+        }
+    });
+    return totals;
 }
