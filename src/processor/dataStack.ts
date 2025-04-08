@@ -82,17 +82,19 @@ export default function dataStack(ecModel: GlobalModel) {
 
 function calculateStack(stackInfoList: StackInfo[]) {
     const dataLength = stackInfoList[0].data.count();
-    const isPercentStacked = stackInfoList.some((info) => info.seriesModel.get('stackStrategy') === 'percent');
 
-    // Total values for each index, used only for 'percent' stackStrategy.
+    // Check if any series in this stack group is using 'percent' stackStrategy.
+    const isPercentStacked = stackInfoList.some((info) => info.seriesModel.get('stackStrategy') === 'percent');
+    // Accumulates the total value across all series at each index.
     const totals = isPercentStacked ? Array(dataLength).fill(0) : undefined;
+    // Tracks running total of percent values at each index.
     const cumulativePercents = isPercentStacked ? Array(dataLength).fill(0) : undefined;
 
     if (isPercentStacked && totals) {
+        // Compute total sum per index across all series in the stack.
         each(stackInfoList, (stackInfo) => {
             const data = stackInfo.data;
             const stackedDimension = stackInfo.stackedDimension;
-
             for (let i = 0; i < dataLength; i++) {
                 const val = data.get(stackedDimension, i) as number;
                 if (!isNaN(val)) {
@@ -121,7 +123,7 @@ function calculateStack(stackInfoList: StackInfo[]) {
                 return resultNaN;
             }
 
-            // Percent stack logic to normalize each value as a percentage of the total per index.
+            // Optional percent stack logic to normalize each value as a percentage of the total per index.
             if (stackStrategy === 'percent') {
                 const total = totals![dataIndex];
                 const percent = total === 0 ? 0 : (sum / total) * 100;
