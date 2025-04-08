@@ -27,7 +27,7 @@ import {
     TooltipMarkupSection
 } from './tooltipMarkup';
 import { retrieveRawValue } from '../../data/helper/dataProvider';
-import { isNameSpecified } from '../../util/model';
+import { isNameSpecified, getStackStrategy } from '../../util/model';
 
 
 export function defaultSeriesFormatTooltip(opt: {
@@ -65,6 +65,22 @@ export function defaultSeriesFormatTooltip(opt: {
         const dimInfo = data.getDimensionInfo(tooltipDims[0]);
         sortParam = inlineValue = retrieveRawValue(data, dataIndex, tooltipDims[0]);
         inlineValueType = dimInfo.type;
+        const stackStrategy = getStackStrategy(series);
+        if (stackStrategy === 'percent') {
+            // Append the normalized value (as a percent of the total stack) when 'percent' stackStrategy is used.
+            // The difference between the cumulative sum including this series and the cumulative sum before
+            // this series gives its individual contribution.
+            const stackResultDim = data.getCalculationInfo('stackResultDimension');
+            const stackedOverDim = data.getCalculationInfo('stackedOverDimension');
+            const stackTop = data.get(stackResultDim, dataIndex) as number;
+            const stackBottom = data.get(stackedOverDim, dataIndex) as number;
+            const percentVal = isNaN(stackTop) || isNaN(stackBottom)
+                ? NaN
+                : stackTop - stackBottom;
+            if (!isNaN(percentVal)) {
+                inlineValue = `${inlineValue} (${percentVal.toFixed(1)}%)`;
+            }
+        }
     }
     else {
         sortParam = inlineValue = isValueArr ? value[0] : value;
