@@ -62,12 +62,6 @@ export default function dataStack(ecModel: GlobalModel) {
                 seriesModel: seriesModel
             };
 
-            // // Force index-based stacking for 'percent' strategy
-            // if (seriesModel.get('stackStrategy') === 'percent') {
-            //     stackInfo.isStackedByIndex = true; // TODO: is this needed?
-            // }
-            // console.log('stackInfo.isStackedByIndex -> ', stackInfo.isStackedByIndex);
-
             // If stacked on axis that do not support data stack.
             if (!stackInfo.stackedDimension
                 || !(stackInfo.isStackedByIndex || stackInfo.stackedByDimension)
@@ -84,8 +78,6 @@ export default function dataStack(ecModel: GlobalModel) {
     });
 
     stackInfoMap.each(calculateStack);
-
-    console.log(stackInfoMap);
 }
 
 function calculateStack(stackInfoList: StackInfo[]) {
@@ -136,7 +128,6 @@ function calculateStack(stackInfoList: StackInfo[]) {
                 cumulativePercents![dataIndex] = addSafe(stackedOver, percent);
                 resultVal[0] = cumulativePercents![dataIndex];
                 resultVal[1] = stackedOver;
-                console.log('resultVal -> ', resultVal);
                 return resultVal;
             }
 
@@ -187,7 +178,6 @@ function calculateStack(stackInfoList: StackInfo[]) {
             resultVal[0] = sum;
             resultVal[1] = stackedOver;
 
-            console.log('NON Stack -> resultVal -> ', resultVal);
             return resultVal;
         });
     });
@@ -195,8 +185,6 @@ function calculateStack(stackInfoList: StackInfo[]) {
     stackInfoList.forEach((stackInfo) => {
         stackInfo.data.setLayout('valueDim', stackInfo.stackResultDimension);
     });
-    console.log('totals -> ', totals);
-    console.log('cumulativePercents -> ', cumulativePercents);
 }
 
 /**

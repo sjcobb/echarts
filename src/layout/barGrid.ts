@@ -493,11 +493,8 @@ export function createProgressiveLayout(seriesType: string): StageHandler {
             const stackedDimIdx = stackResultDim && data.getDimensionIndex(stackResultDim);
             const stackedOverDim = data.getCalculationInfo('stackedOverDimension');
             const stackedOverDimIdx = stackedOverDim && data.getDimensionIndex(stackedOverDim);
-            console.log('(barGrid) stackedOverDimIdx -> ', stackedOverDimIdx);
-            // const stacked = isDimensionStacked(data, valueDim) && !!data.getCalculationInfo('stackedOnSeries');
             const stacked = stackStrategy === 'percent'
             || (isDimensionStacked(data, valueDim) && !!data.getCalculationInfo('stackedOnSeries'));
-            console.log('(barGrid) stacked -> ', stacked);
 
             // Layout info.
             const columnWidth = data.getLayout('size');
