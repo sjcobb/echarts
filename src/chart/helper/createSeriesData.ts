@@ -177,7 +177,6 @@ function createSeriesData(
         dimValueGetter
     );
 
-    console.log('DATA -> ', data);
     return data;
 }
 
