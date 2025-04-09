@@ -50,8 +50,15 @@ function createMockSeriesDataFromSchema(dimensions: string[], rows: (number | nu
         isCalculationCoord: true,
         storeDimIndex: storeDimStart + 1
     }));
+    const paddedRows = rows.map((row) => {
+        const full = [...row];
+        while (full.length < schema.dimensions.length) {
+            full.push(NaN);
+        }
+        return full;
+    });
     const seriesData = new SeriesData(schema, hostModel);
-    seriesData.initData(source);
+    seriesData.initData(paddedRows);
     return seriesData;
 }
 
@@ -62,19 +69,21 @@ function createMockStackInfo(name: string, values: number[][]): StackInfo {
         yInfo.isCalculationCoord = true;
     }
     data.setCalculationInfo({
+        stackedByDimension: 'x',
         stackedDimension: 'y',
-        stackedByDimension: '__stack_by__',
         stackResultDimension: '__stack_result__',
         stackedOverDimension: '__stacked_over__',
         isStackedByIndex: true,
     });
-    // data.getDimensionInfo('y').isCalculationCoord = true;
-    // data.getDimensionInfo('__stack_result__').isCalculationCoord = true;
-    // data.getDimensionInfo('__stacked_over__').isCalculationCoord = true;
     const seriesModel = {
         name,
-        getData: () => data
-    } as SeriesModel;
+        option: {
+            type: 'bar',
+            stack: 'total',
+            stackStrategy: 'percent',
+            data: values[0],
+        },
+    } as unknown as SeriesModel;
     return {
         data,
         seriesModel,
@@ -101,28 +110,30 @@ describe('util/stack', function () {
                 [2, 10],
                 ]),
             ];
-
             calculatePercentStack(stackInfoList);
             const firstSeriesData = stackInfoList[0].data;
-            // const stackResultDim = firstSeriesData.getCalculationInfo('stackResultDimension');
-            // const stackedDimIdx = stackResultDim && firstSeriesData.getDimensionIndex(stackResultDim);
-            const stackedOverDim = firstSeriesData.getCalculationInfo('stackedOverDimension');
-            const stackedOverDimIdx = stackedOverDim && firstSeriesData.getDimensionIndex(stackedOverDim);
-            const firstSeriesDataStore = firstSeriesData.getStore();
-            // console.log('FINAL -> firstSeriesDataStore: ', firstSeriesDataStore);
-            const dataIndex = 1;
-            const stackStartValue = firstSeriesDataStore.get(stackedOverDimIdx, dataIndex);
-            console.log('FINAL -> stackStartValue: ', stackStartValue);
-            // console.log('FINAL -> stackInfoList: ', stackInfoList);
-            // console.log(stackInfoList[0].data);
-            // console.log(stackInfoList[0].data.getValues(0));
-            // console.log(stackInfoList[0].data.getCalculationInfo('stackResultDimension')); // __stack_result__
-            // const getValues = (info: StackInfo) => info.data.mapArray(['__stack_result__'], (val: number[]) => val[0]);
-            // expect(getValues(stackInfoList[0])).toEqual([
-            //     10 / (10 + 40),
-            //     20 / (20 + 20),
-            //     30 / (30 + 10),
-            // ]);
+
+            expect(firstSeriesData.mapArray('__stack_result__', x => +Number(x).toFixed(4))).toEqual([
+                20,
+                50,
+                75,
+            ]);
+            expect(firstSeriesData.mapArray('__stacked_over__', x => +Number(x).toFixed(4))).toEqual([
+                0,
+                0,
+                0,
+            ]);
+            const secondSeriesData = stackInfoList[1].data;
+            expect(secondSeriesData.mapArray('__stack_result__', x => +Number(x).toFixed(4))).toEqual([
+                100,
+                100,
+                100,
+            ]);
+            expect(secondSeriesData.mapArray('__stacked_over__', x => +Number(x).toFixed(4))).toEqual([
+                20,
+                50,
+                75,
+            ]);
         });
     });
 });
