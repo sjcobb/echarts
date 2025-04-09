@@ -32,19 +32,22 @@ export function calculatePercentStack(stackInfoList: StackInfo[]) {
 
     // Calculate totals per data index across all series in the stack group.
     const totals = accumulateTotals(stackInfoList, dataLength);
+
     // Used to track running total of percent values at each index.
     const cumulativePercents = new Float64Array(dataLength);
 
+    const resultNaN = [NaN, NaN];
+
     each(stackInfoList, function (targetStackInfo) {
         const resultVal: number[] = [];
-        const resultNaN = [NaN, NaN];
         const dims: [string, string] = [targetStackInfo.stackResultDimension, targetStackInfo.stackedOverDimension];
         const targetData = targetStackInfo.data;
+        const stackedDim = targetStackInfo.stackedDimension;
 
         // Should not write on raw data, because stack series model list changes
         // depending on legend selection.
         targetData.modify(dims, function (v0, v1, dataIndex) {
-            const rawValue = targetData.get(targetStackInfo.stackedDimension, dataIndex) as number;
+            const rawValue = targetData.get(stackedDim, dataIndex) as number;
 
             // Consider `connectNulls` of line area, if value is NaN, stackedOver
             // should also be NaN, to draw a appropriate belt area.
@@ -52,11 +55,20 @@ export function calculatePercentStack(stackInfoList: StackInfo[]) {
                 return resultNaN;
             }
 
-            const total = totals![dataIndex];
+            // Pre-calculated total for this specific data index.
+            const total = totals[dataIndex];
+
+            // Percentage contribution of this segment.
             const percent = total === 0 ? 0 : (rawValue / total) * 100;
-            const stackedOver = cumulativePercents![dataIndex];
-            cumulativePercents![dataIndex] = addSafe(stackedOver, percent);
-            resultVal[0] = cumulativePercents![dataIndex];
+
+            // Bottom edge of this segment (cumulative % before this series).
+            const stackedOver = cumulativePercents[dataIndex];
+
+            // Update the cumulative percentage for the next series at this index to use.
+            cumulativePercents[dataIndex] = addSafe(stackedOver, percent);
+
+            // Result: [Top edge %, Bottom edge %]
+            resultVal[0] = cumulativePercents[dataIndex];
             resultVal[1] = stackedOver;
             return resultVal;
         });
