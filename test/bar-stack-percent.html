@@ -56,10 +56,7 @@
                     ],
                 };
                 testHelper.create(echarts, "main1", {
-                    title: [
-                        'example 1 - stackStrategy: "percent"',
-                        "100% per category",
-                    ],
+                    title: ['example 1 - stackStrategy: "percent"'],
                     option,
                 });
             });
@@ -91,7 +88,7 @@
                     data: rawData[sid],
                 }));
                 const option = {
-                    legend: { selectedMode: false },
+                    legend: {},
                     tooltip: {
                         trigger: "axis",
                         axisPointer: { type: "shadow" },
@@ -101,10 +98,7 @@
                     series,
                 };
                 testHelper.create(echarts, "main2", {
-                    title: [
-                        'example 2 - stackStrategy: "percent"',
-                        "raw values, 100% per day",
-                    ],
+                    title: ['example 2 - stackStrategy: "percent"'],
                     option,
                 });
             });
@@ -158,10 +152,7 @@
                     ],
                 };
                 testHelper.create(echarts, "main3", {
-                    title: [
-                        'example 3 - stackStrategy: "percent"',
-                        "100% per year",
-                    ],
+                    title: ['example 3 - stackStrategy: "percent"'],
                     option,
                 });
             });
@@ -190,7 +181,7 @@
                     yAxis: { type: "value" },
                     dataset: {
                         source: timeStamps.map((ts, i) => [
-                            new Date(ts), // 🟢 use Date object for time axis
+                            new Date(ts),
                             10 + i * 2, // Low
                             20 + (i % 3) * 5, // Medium
                             30 + (i % 2) * 10, // High
@@ -223,8 +214,7 @@
 
                 testHelper.create(echarts, "main4", {
                     title: [
-                        'example 4 - stackStrategy: "percent"',
-                        "time x-axis",
+                        'example 4 - stackStrategy: "percent" (time xAxis)',
                     ],
                     option,
                 });
@@ -267,10 +257,7 @@
                     ],
                 };
                 testHelper.create(echarts, "main5", {
-                    title: [
-                        'example 5 - stackStrategy: "percent"',
-                        "with nulls and uneven data",
-                    ],
+                    title: ['example 5 - stackStrategy: "percent"'],
                     option,
                 });
             });
