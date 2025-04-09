@@ -31,7 +31,7 @@ export function calculatePercentStack(stackInfoList: StackInfo[]) {
     }
 
     // Calculate totals per data index across all series in the stack group.
-    const totals = accumulateTotals(stackInfoList, dataLength);
+    const totals = calculateStackTotals(stackInfoList, dataLength);
 
     // Used to track running total of percent values at each index.
     const cumulativePercents = new Float64Array(dataLength);
@@ -78,7 +78,7 @@ export function calculatePercentStack(stackInfoList: StackInfo[]) {
 /**
 * Helper to calculate the total value across all series for each data index.
 */
-function accumulateTotals(stackInfoList: StackInfo[], dataLength: number): number[] {
+function calculateStackTotals(stackInfoList: StackInfo[], dataLength: number): number[] {
     const totals = Array(dataLength).fill(0);
     each(stackInfoList, (stackInfo) => {
         const data = stackInfo.data;
