@@ -41,16 +41,16 @@ export function calculatePercentStack(stackInfoList: StackInfo[]) {
         // Should not write on raw data, because stack series model list changes
         // depending on legend selection.
         targetData.modify(dims, function (v0, v1, dataIndex) {
-            const sum = targetData.get(targetStackInfo.stackedDimension, dataIndex) as number;
+            const rawValue = targetData.get(targetStackInfo.stackedDimension, dataIndex) as number;
 
             // Consider `connectNulls` of line area, if value is NaN, stackedOver
             // should also be NaN, to draw a appropriate belt area.
-            if (isNaN(sum)) {
+            if (isNaN(rawValue)) {
                 return resultNaN;
             }
 
             const total = totals![dataIndex];
-            const percent = total === 0 ? 0 : (sum / total) * 100;
+            const percent = total === 0 ? 0 : (rawValue / total) * 100;
             const stackedOver = cumulativePercents![dataIndex];
             cumulativePercents![dataIndex] = addSafe(stackedOver, percent);
             resultVal[0] = cumulativePercents![dataIndex];
