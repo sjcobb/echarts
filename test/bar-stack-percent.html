@@ -1,23 +1,4 @@
 <!DOCTYPE html>
-<!--
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.
--->
-
 <html>
     <head>
         <meta charset="utf-8" />
@@ -33,25 +14,23 @@ under the License.
         <div id="main1"></div>
         <div id="main2"></div>
         <div id="main3"></div>
+        <div id="main4"></div>
+        <div id="main5"></div>
 
-        <!-- <script>
+        <!-- Example 1 -->
+        <script>
             require(["echarts"], function (echarts) {
                 const option = {
                     tooltip: {
                         trigger: "axis",
-                        axisPointer: {
-                            type: "shadow",
-                        },
+                        axisPointer: { type: "shadow" },
                     },
                     legend: {},
                     xAxis: {
                         type: "category",
                         data: ["a", "b", "c", "d", "e"],
                     },
-                    yAxis: {
-                        type: "value",
-                        max: 100,
-                    },
+                    yAxis: { type: "value", max: 100 },
                     series: [
                         {
                             name: "Grapes",
@@ -76,18 +55,17 @@ under the License.
                         },
                     ],
                 };
-
-                console.log(option);
-                const chart = testHelper.create(echarts, "main1", {
+                testHelper.create(echarts, "main1", {
                     title: [
                         'example 1 - stackStrategy: "percent"',
-                        "stacked bar chart should show 100% per category",
+                        "100% per category",
                     ],
-                    option: option,
+                    option,
                 });
             });
-        </script> -->
+        </script>
 
+        <!-- Example 2 -->
         <script>
             require(["echarts"], function (echarts) {
                 const rawData = [
@@ -97,7 +75,6 @@ under the License.
                     [150, 212, 201, 154, 190, 330, 410],
                     [820, 832, 901, 934, 1290, 1330, 1320],
                 ];
-
                 const labels = [
                     "Direct",
                     "Mail Ad",
@@ -106,129 +83,197 @@ under the License.
                     "Search Engine",
                 ];
                 const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
                 const series = labels.map((name, sid) => ({
                     name,
                     type: "bar",
-                    stack: "traffic",
+                    stack: "total",
                     stackStrategy: "percent",
                     data: rawData[sid],
                 }));
-                // console.log(series);
-
                 const option = {
-                    legend: {
-                        selectedMode: false,
-                    },
-                    // colorBy: "series",
+                    legend: { selectedMode: false },
                     tooltip: {
                         trigger: "axis",
                         axisPointer: { type: "shadow" },
                     },
-                    yAxis: {
-                        type: "value",
-                        // max: 100,
-                        // axisLabel: { formatter: "{value}%" },
-                    },
-                    xAxis: {
-                        type: "category",
-                        data: days,
-                    },
+                    yAxis: { type: "value" },
+                    xAxis: { type: "category", data: days },
                     series,
                 };
-
-                console.log(option);
-
-                const chart = testHelper.create(echarts, "main2", {
+                testHelper.create(echarts, "main2", {
                     title: [
                         'example 2 - stackStrategy: "percent"',
-                        "stacked bar chart should show 100% per category using raw values",
+                        "raw values, 100% per day",
                     ],
                     option,
                 });
             });
         </script>
 
-        <!-- <script>
+        <!-- Example 3 -->
+        <script>
             require(["echarts"], function (echarts) {
                 const option = {
                     tooltip: {
                         trigger: "axis",
-                        axisPointer: {
-                            type: "shadow",
-                        },
+                        axisPointer: { type: "shadow" },
                     },
-                    legend: {
-                        data: ["Forest", "Steppe", "Desert", "Wetland"],
-                    },
-                    toolbox: {
-                        show: true,
-                        orient: "vertical",
-                        left: "right",
-                        top: "center",
-                        feature: {
-                            mark: { show: true },
-                            dataView: { show: true, readOnly: false },
-                            magicType: {
-                                show: true,
-                                type: ["line", "bar", "stack"],
-                            },
-                            restore: { show: true },
-                            saveAsImage: { show: true },
-                        },
-                    },
+                    legend: { data: ["Forest", "Steppe", "Desert", "Wetland"] },
                     xAxis: [
                         {
                             type: "category",
-                            axisTick: { show: false },
                             data: ["2012", "2013", "2014", "2015", "2016"],
                         },
                     ],
-                    yAxis: [
-                        {
-                            type: "value",
-                        },
-                    ],
+                    yAxis: [{ type: "value" }],
                     series: [
                         {
                             name: "Forest",
                             type: "bar",
-                            stack: "traffic",
+                            stack: "total",
                             stackStrategy: "percent",
                             data: [320, 332, 301, 334, 390],
                         },
                         {
                             name: "Steppe",
                             type: "bar",
-                            stack: "traffic",
+                            stack: "total",
                             stackStrategy: "percent",
                             data: [220, 182, 191, 234, 290],
                         },
                         {
                             name: "Desert",
                             type: "bar",
-                            stack: "traffic",
+                            stack: "total",
                             stackStrategy: "percent",
                             data: [150, 232, 201, 154, 190],
                         },
                         {
                             name: "Wetland",
                             type: "bar",
-                            stack: "traffic",
+                            stack: "total",
                             stackStrategy: "percent",
                             data: [98, 77, 101, 99, 40],
                         },
                     ],
                 };
-                console.log(option);
-                const chart = testHelper.create(echarts, "main3", {
+                testHelper.create(echarts, "main3", {
                     title: [
                         'example 3 - stackStrategy: "percent"',
-                        "stacked bar chart should show 100% per category",
+                        "100% per year",
                     ],
-                    option: option,
+                    option,
                 });
             });
-        </script> -->
+        </script>
+
+        <!-- Example 4: Time-based axis -->
+        <script>
+            require(["echarts"], function (echarts) {
+                const baseTime = new Date("2024-01-01T00:00:00Z").getTime();
+                const timeStamps = Array.from(
+                    { length: 6 },
+                    (_, i) => baseTime + i * 86400 * 1000
+                ); // 1 day apart
+
+                const option = {
+                    tooltip: {
+                        trigger: "axis",
+                        axisPointer: { type: "shadow" },
+                    },
+                    legend: {},
+                    xAxis: {
+                        type: "time",
+                        min: timeStamps[0],
+                        max: timeStamps[timeStamps.length - 1],
+                    },
+                    yAxis: { type: "value" },
+                    dataset: {
+                        source: timeStamps.map((ts, i) => [
+                            new Date(ts), // 🟢 use Date object for time axis
+                            10 + i * 2, // Low
+                            20 + (i % 3) * 5, // Medium
+                            30 + (i % 2) * 10, // High
+                        ]),
+                    },
+                    series: [
+                        {
+                            name: "Low",
+                            type: "bar",
+                            stack: "all",
+                            stackStrategy: "percent",
+                            encode: { x: 0, y: 1 },
+                        },
+                        {
+                            name: "Medium",
+                            type: "bar",
+                            stack: "all",
+                            stackStrategy: "percent",
+                            encode: { x: 0, y: 1 },
+                        },
+                        {
+                            name: "High",
+                            type: "bar",
+                            stack: "all",
+                            stackStrategy: "percent",
+                            encode: { x: 0, y: 1 },
+                        },
+                    ],
+                };
+
+                testHelper.create(echarts, "main4", {
+                    title: [
+                        'example 4 - stackStrategy: "percent"',
+                        "time x-axis",
+                    ],
+                    option,
+                });
+            });
+        </script>
+
+        <!-- Example 5: Uneven bar counts -->
+        <script>
+            require(["echarts"], function (echarts) {
+                const option = {
+                    tooltip: {
+                        trigger: "axis",
+                        axisPointer: { type: "shadow" },
+                    },
+                    legend: {},
+                    xAxis: { type: "category", data: ["A", "B", "C", "D"] },
+                    yAxis: { type: "value" },
+                    series: [
+                        {
+                            name: "Alpha",
+                            type: "bar",
+                            stack: "z",
+                            stackStrategy: "percent",
+                            data: [40, 20, 30, 10],
+                        },
+                        {
+                            name: "Beta",
+                            type: "bar",
+                            stack: "z",
+                            stackStrategy: "percent",
+                            data: [30, 40, 20, 10],
+                        },
+                        {
+                            name: "Gamma",
+                            type: "bar",
+                            stack: "z",
+                            stackStrategy: "percent",
+                            data: [30, 40, null, 80],
+                        },
+                    ],
+                };
+                testHelper.create(echarts, "main5", {
+                    title: [
+                        'example 5 - stackStrategy: "percent"',
+                        "with nulls and uneven data",
+                    ],
+                    option,
+                });
+            });
+        </script>
     </body>
 </html>
