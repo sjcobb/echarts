@@ -169,10 +169,6 @@ function calculateStack(stackInfoList: StackInfo[]) {
             return resultVal;
         });
     });
-
-    stackInfoList.forEach((stackInfo) => {
-        stackInfo.data.setLayout('valueDim', stackInfo.stackResultDimension);
-    });
 }
 
 /**
