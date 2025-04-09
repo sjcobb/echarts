@@ -30,22 +30,13 @@ under the License.
         <link rel="stylesheet" href="lib/reset.css" />
     </head>
     <body>
-        <style>
-            #main0 {
-                width: 600px;
-                height: 400px;
-            }
-        </style>
+        <div id="main1"></div>
+        <div id="main2"></div>
+        <div id="main3"></div>
 
-        <div id="main0"></div>
-
-        <script>
+        <!-- <script>
             require(["echarts"], function (echarts) {
                 const option = {
-                    title: {
-                        text: 'stackStrategy: "percent" — should stack to 100%',
-                        show: false,
-                    },
                     tooltip: {
                         trigger: "axis",
                         axisPointer: {
@@ -86,11 +77,158 @@ under the License.
                     ],
                 };
 
-                const chart = testHelper.create(echarts, "main0", {
-                    title: 'stackStrategy: "percent" — stacked bar chart should show 100% per category',
+                console.log(option);
+                const chart = testHelper.create(echarts, "main1", {
+                    title: [
+                        'example 1 - stackStrategy: "percent"',
+                        "stacked bar chart should show 100% per category",
+                    ],
                     option: option,
                 });
             });
+        </script> -->
+
+        <script>
+            require(["echarts"], function (echarts) {
+                const rawData = [
+                    [100, 302, 301, 334, 390, 330, 320],
+                    [320, 132, 101, 134, 90, 230, 210],
+                    [220, 182, 191, 234, 290, 330, 310],
+                    [150, 212, 201, 154, 190, 330, 410],
+                    [820, 832, 901, 934, 1290, 1330, 1320],
+                ];
+
+                const labels = [
+                    "Direct",
+                    "Mail Ad",
+                    "Affiliate Ad",
+                    "Video Ad",
+                    "Search Engine",
+                ];
+                const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+                const series = labels.map((name, sid) => ({
+                    name,
+                    type: "bar",
+                    stack: "traffic",
+                    stackStrategy: "percent",
+                    data: rawData[sid],
+                }));
+                // console.log(series);
+
+                const option = {
+                    legend: {
+                        selectedMode: false,
+                    },
+                    // colorBy: "series",
+                    tooltip: {
+                        trigger: "axis",
+                        axisPointer: { type: "shadow" },
+                    },
+                    yAxis: {
+                        type: "value",
+                        // max: 100,
+                        // axisLabel: { formatter: "{value}%" },
+                    },
+                    xAxis: {
+                        type: "category",
+                        data: days,
+                    },
+                    series,
+                };
+
+                console.log(option);
+
+                const chart = testHelper.create(echarts, "main2", {
+                    title: [
+                        'example 2 - stackStrategy: "percent"',
+                        "stacked bar chart should show 100% per category using raw values",
+                    ],
+                    option,
+                });
+            });
         </script>
+
+        <!-- <script>
+            require(["echarts"], function (echarts) {
+                const option = {
+                    tooltip: {
+                        trigger: "axis",
+                        axisPointer: {
+                            type: "shadow",
+                        },
+                    },
+                    legend: {
+                        data: ["Forest", "Steppe", "Desert", "Wetland"],
+                    },
+                    toolbox: {
+                        show: true,
+                        orient: "vertical",
+                        left: "right",
+                        top: "center",
+                        feature: {
+                            mark: { show: true },
+                            dataView: { show: true, readOnly: false },
+                            magicType: {
+                                show: true,
+                                type: ["line", "bar", "stack"],
+                            },
+                            restore: { show: true },
+                            saveAsImage: { show: true },
+                        },
+                    },
+                    xAxis: [
+                        {
+                            type: "category",
+                            axisTick: { show: false },
+                            data: ["2012", "2013", "2014", "2015", "2016"],
+                        },
+                    ],
+                    yAxis: [
+                        {
+                            type: "value",
+                        },
+                    ],
+                    series: [
+                        {
+                            name: "Forest",
+                            type: "bar",
+                            stack: "traffic",
+                            stackStrategy: "percent",
+                            data: [320, 332, 301, 334, 390],
+                        },
+                        {
+                            name: "Steppe",
+                            type: "bar",
+                            stack: "traffic",
+                            stackStrategy: "percent",
+                            data: [220, 182, 191, 234, 290],
+                        },
+                        {
+                            name: "Desert",
+                            type: "bar",
+                            stack: "traffic",
+                            stackStrategy: "percent",
+                            data: [150, 232, 201, 154, 190],
+                        },
+                        {
+                            name: "Wetland",
+                            type: "bar",
+                            stack: "traffic",
+                            stackStrategy: "percent",
+                            data: [98, 77, 101, 99, 40],
+                        },
+                    ],
+                };
+                console.log(option);
+                const chart = testHelper.create(echarts, "main3", {
+                    title: [
+                        'example 3 - stackStrategy: "percent"',
+                        "stacked bar chart should show 100% per category",
+                    ],
+                    option: option,
+                });
+            });
+        </script> -->
     </body>
 </html>
