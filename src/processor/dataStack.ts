@@ -20,21 +20,9 @@
 import {createHashMap, each} from 'zrender/src/core/util';
 import GlobalModel from '../model/Global';
 import SeriesModel from '../model/Series';
-import { SeriesOption, SeriesStackOptionMixin } from '../util/types';
-import SeriesData, { DataCalculationInfo } from '../data/SeriesData';
+import { SeriesOption, SeriesStackOptionMixin, StackInfo } from '../util/types';
 import { addSafe } from '../util/number';
-
-type StackInfo = Pick<
-    DataCalculationInfo<SeriesOption & SeriesStackOptionMixin>,
-    'stackedDimension'
-    | 'isStackedByIndex'
-    | 'stackedByDimension'
-    | 'stackResultDimension'
-    | 'stackedOverDimension'
-> & {
-    data: SeriesData
-    seriesModel: SeriesModel<SeriesOption & SeriesStackOptionMixin>
-};
+import { calculatePercentStack } from '../util/stack';
 
 // (1) [Caution]: the logic is correct based on the premises:
 //     data processing stage is blocked in stream.
@@ -77,18 +65,18 @@ export default function dataStack(ecModel: GlobalModel) {
         }
     });
 
-    stackInfoMap.each(calculateStack);
+    stackInfoMap.each(function (stackInfoList) {
+        const isPercentStack = stackInfoList.some((info) => info.seriesModel.get('stackStrategy') === 'percent');
+        if (isPercentStack) {
+            calculatePercentStack(stackInfoList);
+        }
+        else {
+            calculateStack(stackInfoList);
+        }
+    });
 }
 
 function calculateStack(stackInfoList: StackInfo[]) {
-    const dataLength = stackInfoList[0].data.count();
-
-    // Check if any series in this stack group is using 'percent' stackStrategy.
-    const isPercentStacked = stackInfoList.some((info) => info.seriesModel.get('stackStrategy') === 'percent');
-    const totals = isPercentStacked ? accumulateTotals(stackInfoList, dataLength) : undefined;
-    // Used to track running total of percent values at each index.
-    const cumulativePercents = isPercentStacked ? Array(dataLength).fill(0) : undefined;
-
     each(stackInfoList, function (targetStackInfo, idxInStack) {
         const resultVal: number[] = [];
         const resultNaN = [NaN, NaN];
@@ -106,17 +94,6 @@ function calculateStack(stackInfoList: StackInfo[]) {
             // should also be NaN, to draw a appropriate belt area.
             if (isNaN(sum)) {
                 return resultNaN;
-            }
-
-            // Optional percent stack logic to normalize each value as a percentage of the total per index.
-            if (stackStrategy === 'percent') {
-                const total = totals![dataIndex];
-                const percent = total === 0 ? 0 : (sum / total) * 100;
-                const stackedOver = cumulativePercents![dataIndex];
-                cumulativePercents![dataIndex] = addSafe(stackedOver, percent);
-                resultVal[0] = cumulativePercents![dataIndex];
-                resultVal[1] = stackedOver;
-                return resultVal;
             }
 
             let byValue: number;
@@ -169,22 +146,4 @@ function calculateStack(stackInfoList: StackInfo[]) {
             return resultVal;
         });
     });
-}
-
-/**
- * Accumulates the total value across all series at each index.
- */
-function accumulateTotals(stackInfoList: StackInfo[], dataLength: number): number[] {
-    const totals = Array(dataLength).fill(0);
-    each(stackInfoList, (stackInfo) => {
-        const data = stackInfo.data;
-        const dim = stackInfo.stackedDimension;
-        for (let i = 0; i < dataLength; i++) {
-            const val = data.get(dim, i) as number;
-            if (!isNaN(val)) {
-                totals[i] = addSafe(totals[i], val);
-            }
-        }
-    });
-    return totals;
 }
