@@ -89,18 +89,6 @@ function calculateStack(stackInfoList: StackInfo[]) {
     // Used to track running total of percent values at each index.
     const cumulativePercents = isPercentStacked ? Array(dataLength).fill(0) : undefined;
 
-    if (isPercentStacked) {
-        stackInfoList.sort((a, b) => {
-            let totalA = 0;
-            let totalB = 0;
-            for (let i = 0; i < dataLength; i++) {
-                totalA += a.data.get(a.stackedDimension, i) as number || 0;
-                totalB += b.data.get(b.stackedDimension, i) as number || 0;
-            }
-            return totalA - totalB; // bottom to top: smaller total goes lower
-        });
-    }
-
     each(stackInfoList, function (targetStackInfo, idxInStack) {
         const resultVal: number[] = [];
         const resultNaN = [NaN, NaN];
