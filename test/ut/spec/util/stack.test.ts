@@ -97,43 +97,85 @@ function createMockStackInfo(name: string, values: number[][]): StackInfo {
 
 describe('util/stack', function () {
     describe('calculatePercentStack', function () {
-        it('should calculate percent stack', function () {
+        it('should compute percent-stacked values for two series', function () {
             const stackInfoList: StackInfo[] = [
                 createMockStackInfo('a', [
-                [0, 10],
-                [1, 20],
-                [2, 30],
+                    [0, 10],
+                    [1, 20],
+                    [2, 30],
                 ]),
                 createMockStackInfo('b', [
-                [0, 40],
-                [1, 20],
-                [2, 10],
+                    [0, 40],
+                    [1, 20],
+                    [2, 10],
                 ]),
             ];
             calculatePercentStack(stackInfoList);
             const firstSeriesData = stackInfoList[0].data;
-
-            expect(firstSeriesData.mapArray('__stack_result__', x => +Number(x).toFixed(4))).toEqual([
-                20,
-                50,
-                75,
-            ]);
-            expect(firstSeriesData.mapArray('__stacked_over__', x => +Number(x).toFixed(4))).toEqual([
-                0,
-                0,
-                0,
-            ]);
+            expect(firstSeriesData.mapArray('__stack_result__', x => +Number(x).toFixed(4))).toEqual([20, 50, 75]);
+            expect(firstSeriesData.mapArray('__stacked_over__', x => +Number(x).toFixed(4))).toEqual([0, 0, 0]);
             const secondSeriesData = stackInfoList[1].data;
-            expect(secondSeriesData.mapArray('__stack_result__', x => +Number(x).toFixed(4))).toEqual([
-                100,
-                100,
-                100,
-            ]);
-            expect(secondSeriesData.mapArray('__stacked_over__', x => +Number(x).toFixed(4))).toEqual([
-                20,
-                50,
-                75,
-            ]);
+            expect(secondSeriesData.mapArray('__stack_result__', x => +Number(x).toFixed(4))).toEqual([100, 100, 100]);
+            expect(secondSeriesData.mapArray('__stacked_over__', x => +Number(x).toFixed(4))).toEqual([20, 50, 75]);
+        });
+
+        it('should compute percent-stacked values for two series with varying magnitudes', function () {
+            const stackInfoList: StackInfo[] = [
+                createMockStackInfo('a', [
+                    [0, 50],
+                    [1, 2],
+                    [2, 1000],
+                    [3, 0],
+                ]),
+                createMockStackInfo('b', [
+                    [0, 50],
+                    [1, 8],
+                    [2, 1000],
+                    [3, 1],
+                ]),
+            ];
+            calculatePercentStack(stackInfoList);
+            const firstSeriesData = stackInfoList[0].data;
+            expect(firstSeriesData.mapArray('__stack_result__', x => +Number(x).toFixed(4))).toEqual(
+                [50, 20, 50, 0]
+            );
+            expect(firstSeriesData.mapArray('__stacked_over__', x => +Number(x).toFixed(4))).toEqual(
+                [0, 0, 0, 0]
+            );
+            const secondSeriesData = stackInfoList[1].data;
+            expect(secondSeriesData.mapArray('__stack_result__', x => +Number(x).toFixed(4))).toEqual(
+                [100, 100, 100, 100]
+            );
+            expect(secondSeriesData.mapArray('__stacked_over__', x => +Number(x).toFixed(4))).toEqual(
+                [50, 20, 50, 0]
+            );
+        });
+
+        it('should compute percent-stacked values for three series', function () {
+            const stackInfoList: StackInfo[] = [
+                createMockStackInfo('a', [
+                    [0, 1000],
+                    [1, 1000],
+                ]),
+                createMockStackInfo('b', [
+                    [0, 2000],
+                    [1, 3000],
+                ]),
+                createMockStackInfo('c', [
+                    [0, 7000],
+                    [1, 6000],
+                ]),
+            ];
+            calculatePercentStack(stackInfoList);
+            const [a, b, c] = stackInfoList.map((s) => s.data);
+            expect(a.mapArray('__stack_result__', x => +Number(x).toFixed(4))).toEqual([10, 10]);
+            expect(a.mapArray('__stacked_over__', x => +Number(x).toFixed(4))).toEqual([0, 0]);
+
+            expect(b.mapArray('__stack_result__', x => +Number(x).toFixed(4))).toEqual([30, 40]);
+            expect(b.mapArray('__stacked_over__', x => +Number(x).toFixed(4))).toEqual([10, 10]);
+
+            expect(c.mapArray('__stack_result__', x => +Number(x).toFixed(4))).toEqual([100, 100]);
+            expect(c.mapArray('__stacked_over__', x => +Number(x).toFixed(4))).toEqual([30, 40]);
         });
     });
 });
