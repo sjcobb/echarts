@@ -482,14 +482,20 @@ export function createProgressiveLayout(seriesType: string): StageHandler {
             const baseDimIdx = data.getDimensionIndex(data.mapDimension(baseAxis.dim));
             const drawBackground = seriesModel.get('showBackground', true);
             const valueDim = data.mapDimension(valueAxis.dim);
-            const stackResultDim = data.getCalculationInfo('stackResultDimension');
-            const stacked = isDimensionStacked(data, valueDim) && !!data.getCalculationInfo('stackedOnSeries');
             const isValueAxisH = valueAxis.isHorizontal();
             const valueAxisStart = getValueAxisStart(baseAxis, valueAxis);
             const isLarge = isInLargeMode(seriesModel);
             const barMinHeight = seriesModel.get('barMinHeight') || 0;
 
+            // Determine stacked dimensions and account for stackStrategy.
+            const stackResultDim = data.getCalculationInfo('stackResultDimension');
             const stackedDimIdx = stackResultDim && data.getDimensionIndex(stackResultDim);
+            const stackedOverDim = data.getCalculationInfo('stackedOverDimension');
+            const stackedOverDimIdx = stackedOverDim && data.getDimensionIndex(stackedOverDim);
+            const stackStrategy = seriesModel.get('stackStrategy');
+            const isPercentStack = stackStrategy === 'percent';
+            const stacked = isPercentStack
+            || (isDimensionStacked(data, valueDim) && !!data.getCalculationInfo('stackedOnSeries'));
 
             // Layout info.
             const columnWidth = data.getLayout('size');
@@ -518,7 +524,12 @@ export function createProgressiveLayout(seriesType: string): StageHandler {
                         // Because of the barMinHeight, we can not use the value in
                         // stackResultDimension directly.
                         if (stacked) {
-                            stackStartValue = +value - (store.get(valueDimIdx, dataIndex) as number);
+                            if (isPercentStack) {
+                                stackStartValue = store.get(stackedOverDimIdx, dataIndex);
+                            }
+                            else {
+                                stackStartValue = +value - (store.get(valueDimIdx, dataIndex) as number);
+                            }
                         }
 
                         let x;
