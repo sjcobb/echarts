@@ -45,7 +45,8 @@ import {
     Payload,
     OptionId,
     OptionName,
-    InterpolatableValue
+    InterpolatableValue,
+    SeriesStackOptionMixin
 } from './types';
 import { Dictionary } from 'zrender/src/core/types';
 import SeriesModel from '../model/Series';
@@ -1093,4 +1094,8 @@ export function interpolateRawValues(
         }
         return interpolated;
     }
+}
+
+export function getStackStrategy(series: SeriesModel): SeriesStackOptionMixin['stackStrategy'] | undefined {
+    return (series.get as (path: string) => unknown)('stackStrategy') as SeriesStackOptionMixin['stackStrategy'];
 }
