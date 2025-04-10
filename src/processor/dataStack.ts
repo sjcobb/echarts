@@ -20,21 +20,9 @@
 import {createHashMap, each} from 'zrender/src/core/util';
 import GlobalModel from '../model/Global';
 import SeriesModel from '../model/Series';
-import { SeriesOption, SeriesStackOptionMixin } from '../util/types';
-import SeriesData, { DataCalculationInfo } from '../data/SeriesData';
+import { SeriesOption, SeriesStackOptionMixin, StackInfo } from '../util/types';
 import { addSafe } from '../util/number';
-
-type StackInfo = Pick<
-    DataCalculationInfo<SeriesOption & SeriesStackOptionMixin>,
-    'stackedDimension'
-    | 'isStackedByIndex'
-    | 'stackedByDimension'
-    | 'stackResultDimension'
-    | 'stackedOverDimension'
-> & {
-    data: SeriesData
-    seriesModel: SeriesModel<SeriesOption & SeriesStackOptionMixin>
-};
+import { calculatePercentStack } from '../util/stack';
 
 // (1) [Caution]: the logic is correct based on the premises:
 //     data processing stage is blocked in stream.
@@ -77,7 +65,15 @@ export default function dataStack(ecModel: GlobalModel) {
         }
     });
 
-    stackInfoMap.each(calculateStack);
+    stackInfoMap.each(function (stackInfoList) {
+        const isPercentStack = stackInfoList.some((info) => info.seriesModel.get('stackStrategy') === 'percent');
+        if (isPercentStack) {
+            calculatePercentStack(stackInfoList);
+        }
+        else {
+            calculateStack(stackInfoList);
+        }
+    });
 }
 
 function calculateStack(stackInfoList: StackInfo[]) {
