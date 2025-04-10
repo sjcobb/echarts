@@ -16,6 +16,7 @@
         <div id="main3"></div>
         <div id="main4"></div>
         <div id="main5"></div>
+        <div id="main6"></div>
 
         <!-- Example 1 -->
         <script>
@@ -34,21 +35,24 @@
                     series: [
                         {
                             name: "Grapes",
-                            type: "bar",
+                            type: "line",
+                            areaStyle: {},
                             stack: "fruit",
                             stackStrategy: "percent",
                             data: [10, 20, 10, 20, 10],
                         },
                         {
                             name: "Apples",
-                            type: "bar",
+                            type: "line",
+                            areaStyle: {},
                             stack: "fruit",
                             stackStrategy: "percent",
                             data: [50, 20, 60, 80, 30],
                         },
                         {
                             name: "Bananas",
-                            type: "bar",
+                            type: "line",
+                            areaStyle: {},
                             stack: "fruit",
                             stackStrategy: "percent",
                             data: [50, 80, 40, 20, 70],
@@ -56,13 +60,63 @@
                     ],
                 };
                 testHelper.create(echarts, "main1", {
-                    title: ['example 1 - stackStrategy: "percent"'],
+                    title: [
+                        'example 1: line series - stackStrategy: "percent"',
+                    ],
                     option,
                 });
             });
         </script>
 
         <!-- Example 2 -->
+        <script>
+            require(["echarts"], function (echarts) {
+                const option = {
+                    tooltip: {
+                        trigger: "axis",
+                        axisPointer: { type: "shadow" },
+                    },
+                    legend: {},
+                    xAxis: {
+                        type: "category",
+                        data: ["a", "b", "c", "d", "e"],
+                    },
+                    yAxis: { type: "value", max: 100 },
+                    series: [
+                        {
+                            name: "Grapes",
+                            type: "bar",
+                            areaStyle: {},
+                            stack: "fruit",
+                            stackStrategy: "percent",
+                            data: [10, 20, 10, 20, 10],
+                        },
+                        {
+                            name: "Apples",
+                            type: "bar",
+                            areaStyle: {},
+                            stack: "fruit",
+                            stackStrategy: "percent",
+                            data: [50, 20, 60, 80, 30],
+                        },
+                        {
+                            name: "Bananas",
+                            type: "bar",
+                            areaStyle: {},
+                            stack: "fruit",
+                            stackStrategy: "percent",
+                            data: [50, 80, 40, 20, 70],
+                        },
+                    ],
+                };
+                testHelper.create(echarts, "main2", {
+                    title: ['example 2: bar series - stackStrategy: "percent"'],
+                    option,
+                });
+            });
+        </script>
+
+        <!-- Example 3 -->
         <script>
             require(["echarts"], function (echarts) {
                 const rawData = [
@@ -97,14 +151,14 @@
                     xAxis: { type: "category", data: days },
                     series,
                 };
-                testHelper.create(echarts, "main2", {
-                    title: ['example 2 - stackStrategy: "percent"'],
+                testHelper.create(echarts, "main3", {
+                    title: ['example 3: bar series - stackStrategy: "percent"'],
                     option,
                 });
             });
         </script>
 
-        <!-- Example 3 -->
+        <!-- Example 4 -->
         <script>
             require(["echarts"], function (echarts) {
                 const option = {
@@ -151,14 +205,14 @@
                         },
                     ],
                 };
-                testHelper.create(echarts, "main3", {
-                    title: ['example 3 - stackStrategy: "percent"'],
+                testHelper.create(echarts, "main4", {
+                    title: ['example 4: bar series - stackStrategy: "percent"'],
                     option,
                 });
             });
         </script>
 
-        <!-- Example 4: Time-based axis -->
+        <!-- Example 5: Time-based axis -->
         <script>
             require(["echarts"], function (echarts) {
                 const baseTime = new Date("2024-01-01T00:00:00Z").getTime();
@@ -212,16 +266,14 @@
                     ],
                 };
 
-                testHelper.create(echarts, "main4", {
-                    title: [
-                        'example 4 - stackStrategy: "percent" (time xAxis)',
-                    ],
+                testHelper.create(echarts, "main5", {
+                    title: ['example 5: time xAxis - stackStrategy: "percent"'],
                     option,
                 });
             });
         </script>
 
-        <!-- Example 5: Uneven bar counts -->
+        <!-- Example 6: Uneven bar counts -->
         <script>
             require(["echarts"], function (echarts) {
                 const option = {
@@ -256,8 +308,10 @@
                         },
                     ],
                 };
-                testHelper.create(echarts, "main5", {
-                    title: ['example 5 - stackStrategy: "percent"'],
+                testHelper.create(echarts, "main6", {
+                    title: [
+                        'example 6: uneven / null - stackStrategy: "percent"',
+                    ],
                     option,
                 });
             });
