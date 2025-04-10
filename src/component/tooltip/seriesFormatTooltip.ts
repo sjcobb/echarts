@@ -75,8 +75,8 @@ export function defaultSeriesFormatTooltip(opt: {
             // Difference between the cumulative sum including this series and the cumulative sum before
             // this series gives its individual contribution.
             if (!isNaN(stackTop) && !isNaN(stackBottom)) {
-                const percentVal = stackTop - stackBottom;
-                inlineValue = `${inlineValue} (${percentVal.toFixed(1)}%)`;
+                const percentValue = stackTop - stackBottom;
+                inlineValue = `${inlineValue} (${percentValue.toFixed(1)}%)`;
             }
         }
     }
