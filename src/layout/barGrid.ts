@@ -525,9 +525,13 @@ export function createProgressiveLayout(seriesType: string): StageHandler {
                         // stackResultDimension directly.
                         if (stacked) {
                             if (isPercentStack) {
+                                // For 'percent' stackStrategy, use the normalized bottom edge (stackedOverDimension)
+                                // as the start value of the bar segment.
                                 stackStartValue = store.get(stackedOverDimIdx, dataIndex);
                             }
                             else {
+                                // For standard (non-percent) stackStrategy, subtract the original value from the
+                                // stacked total to compute the bar segment's start value.
                                 stackStartValue = +value - (store.get(valueDimIdx, dataIndex) as number);
                             }
                         }

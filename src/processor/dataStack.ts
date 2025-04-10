@@ -71,12 +71,12 @@ export default function dataStack(ecModel: GlobalModel) {
             calculatePercentStack(stackInfoList);
         }
         else {
-            calculateStack(stackInfoList);
+            calculateStandardStack(stackInfoList);
         }
     });
 }
 
-function calculateStack(stackInfoList: StackInfo[]) {
+function calculateStandardStack(stackInfoList: StackInfo[]) {
     each(stackInfoList, function (targetStackInfo, idxInStack) {
         const resultVal: number[] = [];
         const resultNaN = [NaN, NaN];
