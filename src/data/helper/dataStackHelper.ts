@@ -194,7 +194,8 @@ export function enableDataStack(
         isStackedByIndex: byIndex,
         isPercentStackEnabled: true, // TODO: add stackPercent series option
         stackedOverDimension: stackedOverDimension,
-        stackResultDimension: stackResultDimension
+        stackResultDimension: stackResultDimension,
+        isPercentStackEnabled: seriesModel.get('stackPercent'),
     };
 }
 

@@ -1678,7 +1678,8 @@ export interface SeriesLargeOptionMixin {
 }
 export interface SeriesStackOptionMixin {
     stack?: string
-    stackStrategy?: 'samesign' | 'all' | 'positive' | 'negative' | 'percent';
+    stackStrategy?: 'samesign' | 'all' | 'positive' | 'negative';
+    stackPercent?: boolean;
 }
 
 export type StackInfo = Pick<
@@ -1688,6 +1689,7 @@ export type StackInfo = Pick<
     | 'stackedByDimension'
     | 'stackResultDimension'
     | 'stackedOverDimension'
+    | 'isPercentStackEnabled'
 > & {
     data: SeriesData
     seriesModel: SeriesModel<SeriesOption & SeriesStackOptionMixin>
