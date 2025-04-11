@@ -60,7 +60,7 @@ under the License.
                             type: "line",
                             areaStyle: {},
                             stack: "fruit",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             data: [10, 20, 10, 20, 10],
                         },
                         {
@@ -68,7 +68,7 @@ under the License.
                             type: "line",
                             areaStyle: {},
                             stack: "fruit",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             data: [50, 20, 60, 80, 30],
                         },
                         {
@@ -76,15 +76,13 @@ under the License.
                             type: "line",
                             areaStyle: {},
                             stack: "fruit",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             data: [50, 80, 40, 20, 70],
                         },
                     ],
                 };
                 testHelper.create(echarts, "main1", {
-                    title: [
-                        'example 1: line series - stackStrategy: "percent"',
-                    ],
+                    title: ["example 1: line series - stackPercent: true"],
                     option,
                 });
             });
@@ -111,7 +109,7 @@ under the License.
                             type: "bar",
                             areaStyle: {},
                             stack: "fruit",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             data: [10, 20, 10, 20, 10],
                         },
                         {
@@ -119,7 +117,7 @@ under the License.
                             type: "bar",
                             areaStyle: {},
                             stack: "fruit",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             data: [50, 20, 60, 80, 30],
                         },
                         {
@@ -127,13 +125,13 @@ under the License.
                             type: "bar",
                             areaStyle: {},
                             stack: "fruit",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             data: [50, 80, 40, 20, 70],
                         },
                     ],
                 };
                 testHelper.create(echarts, "main2", {
-                    title: ['example 2: bar series - stackStrategy: "percent"'],
+                    title: ["example 2: bar series - stackPercent: true"],
                     option,
                 });
             });
@@ -161,8 +159,9 @@ under the License.
                     name,
                     type: "bar",
                     stack: "total",
-                    stackStrategy: "percent",
+                    stackPercent: true,
                     data: rawData[sid],
+                    label: { show: true },
                 }));
                 const option = {
                     legend: {},
@@ -175,7 +174,7 @@ under the License.
                     series,
                 };
                 testHelper.create(echarts, "main3", {
-                    title: ['example 3: bar series - stackStrategy: "percent"'],
+                    title: ["example 3: bar series - stackPercent: true"],
                     option,
                 });
             });
@@ -203,34 +202,34 @@ under the License.
                             name: "Forest",
                             type: "bar",
                             stack: "total",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             data: [320, 332, 301, 334, 390],
                         },
                         {
                             name: "Steppe",
                             type: "bar",
                             stack: "total",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             data: [220, 182, 191, 234, 290],
                         },
                         {
                             name: "Desert",
                             type: "bar",
                             stack: "total",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             data: [150, 232, 201, 154, 190],
                         },
                         {
                             name: "Wetland",
                             type: "bar",
                             stack: "total",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             data: [98, 77, 101, 99, 40],
                         },
                     ],
                 };
                 testHelper.create(echarts, "main4", {
-                    title: ['example 4: bar series - stackStrategy: "percent"'],
+                    title: ["example 4: bar series - stackPercent: true"],
                     option,
                 });
             });
@@ -270,28 +269,28 @@ under the License.
                             name: "Low",
                             type: "bar",
                             stack: "all",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             encode: { x: 0, y: 1 },
                         },
                         {
                             name: "Medium",
                             type: "bar",
                             stack: "all",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             encode: { x: 0, y: 1 },
                         },
                         {
                             name: "High",
                             type: "bar",
                             stack: "all",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             encode: { x: 0, y: 1 },
                         },
                     ],
                 };
 
                 testHelper.create(echarts, "main5", {
-                    title: ['example 5: time xAxis - stackStrategy: "percent"'],
+                    title: ["example 5: time xAxis - stackPercent: true"],
                     option,
                 });
             });
@@ -313,29 +312,27 @@ under the License.
                             name: "Alpha",
                             type: "bar",
                             stack: "z",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             data: [40, 20, 30, 10],
                         },
                         {
                             name: "Beta",
                             type: "bar",
                             stack: "z",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             data: [30, 40, 20, 10],
                         },
                         {
                             name: "Gamma",
                             type: "bar",
                             stack: "z",
-                            stackStrategy: "percent",
+                            stackPercent: true,
                             data: [30, 40, null, 80],
                         },
                     ],
                 };
                 testHelper.create(echarts, "main6", {
-                    title: [
-                        'example 6: uneven / null - stackStrategy: "percent"',
-                    ],
+                    title: ["example 6: uneven / null - stackPercent: true"],
                     option,
                 });
             });
