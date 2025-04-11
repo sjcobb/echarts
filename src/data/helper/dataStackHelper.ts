@@ -192,7 +192,6 @@ export function enableDataStack(
         stackedDimension: stackedDimInfo && stackedDimInfo.name,
         stackedByDimension: stackedByDimInfo && stackedByDimInfo.name,
         isStackedByIndex: byIndex,
-        isPercentStackEnabled: true, // TODO: add stackPercent series option
         stackedOverDimension: stackedOverDimension,
         stackResultDimension: stackResultDimension,
         isPercentStackEnabled: seriesModel.get('stackPercent'),

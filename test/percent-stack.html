@@ -306,7 +306,10 @@ under the License.
                     },
                     legend: {},
                     xAxis: { type: "category", data: ["A", "B", "C", "D"] },
-                    yAxis: { type: "value" },
+                    yAxis: {
+                        type: "value",
+                        axisLabel: { formatter: "{value}% custom" },
+                    },
                     series: [
                         {
                             name: "Alpha",
