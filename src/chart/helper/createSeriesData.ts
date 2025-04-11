@@ -37,6 +37,7 @@ import {
 import SeriesModel from '../../model/Series';
 import DataStore from '../../data/DataStore';
 import SeriesDimensionDefine from '../../data/SeriesDimensionDefine';
+import { isValueAxisModel } from '../../coord/axisHelper';
 
 function getCoordSysDimDefs(
     seriesModel: SeriesModel,
@@ -176,6 +177,15 @@ function createSeriesData(
         null,
         dimValueGetter
     );
+
+    if (stackCalculationInfo.isPercentStackEnabled) {
+        const axisModel = coordSysInfo.axisMap.get('y');
+        if (axisModel) {
+            if (isValueAxisModel(axisModel) && axisModel.option.axisLabel.formatter === undefined) {
+                axisModel.option.axisLabel.formatter = (val) => val + '%';
+            }
+        }
+    }
 
     return data;
 }

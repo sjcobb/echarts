@@ -69,6 +69,7 @@ export function enableDataStack(
     | 'isStackedByIndex'
     | 'stackedOverDimension'
     | 'stackResultDimension'
+    | 'isPercentStackEnabled'
 > {
     opt = opt || {};
     let byIndex = opt.byIndex;
@@ -191,6 +192,7 @@ export function enableDataStack(
         stackedDimension: stackedDimInfo && stackedDimInfo.name,
         stackedByDimension: stackedByDimInfo && stackedByDimInfo.name,
         isStackedByIndex: byIndex,
+        isPercentStackEnabled: true, // TODO: add stackPercent series option
         stackedOverDimension: stackedOverDimension,
         stackResultDimension: stackResultDimension
     };

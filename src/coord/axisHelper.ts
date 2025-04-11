@@ -399,3 +399,7 @@ export function unionAxisExtentFromData(dataExtent: number[], data: SeriesData, 
         });
     }
 }
+
+export function isValueAxisModel(model: AxisBaseModel): model is AxisBaseModel<ValueAxisBaseOption> {
+    return model.get('type') === 'value';
+}
