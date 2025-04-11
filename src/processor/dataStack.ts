@@ -66,8 +66,8 @@ export default function dataStack(ecModel: GlobalModel) {
     });
 
     stackInfoMap.each(function (stackInfoList) {
-        const isPercentStack = stackInfoList.some((info) => info.seriesModel.get('stackStrategy') === 'percent');
-        if (isPercentStack) {
+        const isPercentStackEnabled = stackInfoList.some((info) => info.seriesModel.get('stackPercent'));
+        if (isPercentStackEnabled) {
             calculatePercentStack(stackInfoList);
         }
         else {
