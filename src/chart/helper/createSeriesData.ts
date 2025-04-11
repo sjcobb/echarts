@@ -37,6 +37,7 @@ import {
 import SeriesModel from '../../model/Series';
 import DataStore from '../../data/DataStore';
 import SeriesDimensionDefine from '../../data/SeriesDimensionDefine';
+import { isValueAxisModel } from '../../coord/axisHelper';
 
 function getCoordSysDimDefs(
     seriesModel: SeriesModel,
@@ -176,6 +177,16 @@ function createSeriesData(
         null,
         dimValueGetter
     );
+
+    // TODO: clean up, this is a potential idea for setting a percent formatter automatically
+    // when a series has set stackPercent true.
+    // see: https://github.com/apache/echarts/pull/20910#issuecomment-2796034130
+    if (stackCalculationInfo.isPercentStackEnabled) {
+        const axisModel = coordSysInfo.axisMap.get('y'); // TODO: pass axis info correctly
+        if (isValueAxisModel(axisModel) && axisModel.option.axisLabel.formatter === undefined) {
+            axisModel.option.axisLabel.formatter = (val) => val + '%';
+        }
+    }
 
     return data;
 }
