@@ -153,6 +153,15 @@ export class ScaleRawExtentInfo {
                 ];
             }
         }
+        // // TODO: set to max 100 when percentStack
+        // // https://github.com/sjcobb/echarts/compare/fix-17179...sjcobb:echarts:fix-17179_percent-axis-label-auto
+        // if (stackCalculationInfo.isPercentStackEnabled) {
+        // const axisModel = coordSysInfo.axisMap.get('y'); // TODO: pass axis info correctly
+        // if (isValueAxisModel(axisModel) && axisModel.option.axisLabel.formatter === undefined) {
+        //     axisModel.option.axisLabel.formatter = (val) => val + '%';
+        // }
+        // }
+        // debugger;
     }
 
     /**
@@ -237,6 +246,10 @@ export class ScaleRawExtentInfo {
             max = determinedMax;
             maxFixed = true;
         }
+
+        // // TODO: if isPercentStackEnabled set max to 100
+        // // const isPercentStackEnabled = data.getCalculationInfo('isPercentStackEnabled');
+        // debugger;
 
         // Ensure min/max be finite number or NaN here. (not to be null/undefined)
         // `NaN` means min/max axis is blank.

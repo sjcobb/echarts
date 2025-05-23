@@ -102,6 +102,28 @@ function injectOrdinalMeta(
     return firstCategoryDimIndex;
 }
 
+// function markStackPercentAxes(
+//     dimInfoList: SeriesDimensionDefine[],
+//     seriesModel: SeriesModel,
+//     coordSysInfo: ReturnType<typeof getCoordSysInfoBySeries>
+// ) { 
+
+//     const stackCalculationInfo = enableDataStack(seriesModel, { schema, store });
+//     // const stackCalculationInfo = seriesModel.getData().getCalculationInfo();
+
+//     if (!stackCalculationInfo.isPercentStackEnabled) {
+//         return;
+//     }
+
+//     zrUtil.each(dimInfoList, function (dimInfo) {
+//         const coordDim = dimInfo.coordDim;
+//         const axisModel = coordSysInfo.axisMap.get(coordDim);
+//         if (axisModel && axisModel.get('type') === 'value') {
+//             (axisModel.option as any).__stackPercent = true;
+//         }
+//     });
+// }
+
 /**
  * Caution: there are side effects to `sourceManager` in this method.
  * Should better only be called in `Series['getInitialData']`.
@@ -176,6 +198,27 @@ function createSeriesData(
         null,
         dimValueGetter
     );
+
+    // https://github.com/sjcobb/echarts/compare/fix-17179...sjcobb:echarts:fix-17179_percent-axis-label-auto
+
+    // if (stackCalculationInfo.isPercentStackEnabled) {
+    //     const axisModel = coordSysInfo.axisMap.get('y'); // TODO: pass axis info correctly
+    //     if (isValueAxisModel(axisModel) && axisModel.option.axisLabel.formatter === undefined) {
+    //         axisModel.option.axisLabel.formatter = (val) => val + '%';
+    //     }
+    // }
+
+    // if (stackCalculationInfo.isPercentStackEnabled && coordSysInfo) {
+    //     coordSysInfo.axisMap.each((axisModel, axisDim) => {
+    //         if (axisModel.get('type') === 'value' || axisModel.get('type') === 'log') {
+    //             // Only set once, don't overwrite user max
+    //             if (axisModel.option.__stackPercent !== true) {
+    //                 axisModel.option.__stackPercent = true;
+    //             }
+    //         }
+    //     });
+    // }
+
 
     return data;
 }
