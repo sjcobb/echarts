@@ -178,6 +178,10 @@ class DataStore {
 
     private _calcDimNameToIdx = createHashMap<DimensionIndex, DimensionName>();
 
+    // TODO (immutableMode): make immutableMode configurable, similar to option params replaceMerge, notMerge, lazyUpdate
+    // - https://echarts.apache.org/en/api.html#echartsInstance.setOption
+    private immutableMode = true;
+
     defaultDimValueGetter: DimValueGetter;
 
     /**
@@ -1271,8 +1275,8 @@ class DataStore {
 
         if (clonedDimsMap) {
             for (let i = 0; i < chunks.length; i++) {
-                // Not clone if dim is not picked.
-                target._chunks[i] = !clonedDimsMap[i] ? chunks[i] : cloneChunk(chunks[i]);
+                // Do not clone if dim is not picked or if immutableMode config is true
+                target._chunks[i] = !clonedDimsMap[i] || this.immutableMode ? chunks[i] : cloneChunk(chunks[i]);
             }
         }
         else {
@@ -1281,7 +1285,7 @@ class DataStore {
         this._copyCommonProps(target);
 
         if (!ignoreIndices) {
-            target._indices = this._cloneIndices();
+            target._indices = this.immutableMode ? this._indices : this._cloneIndices();
         }
         target._updateGetRawIdx();
         return target;
