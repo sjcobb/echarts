@@ -39,6 +39,7 @@ under the License.
         <div id="main4"></div>
         <div id="main5"></div>
         <div id="main6"></div>
+        <div id="main7"></div>
 
         <!-- Example 1 -->
         <script>
@@ -179,9 +180,11 @@ under the License.
                 const option = {
                     legend: {},
                     tooltip: {
-                        trigger: "axis",
-                        axisPointer: { type: "shadow" },
-                        order: "seriesDesc",
+                        trigger: "item",
+                        // https://echarts.apache.org/en/option.html#tooltip.formatter
+                        formatter: (params) => {
+                            return `Normalized value: ${params.percent}%`;
+                        },
                     },
                     yAxis: {
                         type: "value",
@@ -191,7 +194,7 @@ under the License.
                     series,
                 };
                 testHelper.create(echarts, "main3", {
-                    title: ["example 3: bar series - stackPercent: true"],
+                    title: ["example 3: formatter - stackPercent: true"],
                     option,
                 });
             });
@@ -353,6 +356,103 @@ under the License.
                 };
                 testHelper.create(echarts, "main6", {
                     title: ["example 6: uneven / null - stackPercent: true"],
+                    option,
+                });
+            });
+        </script>
+
+        <!-- Example 7 -->
+        <script>
+            require(["echarts"], function (echarts) {
+                const option = {
+                    tooltip: {
+                        trigger: "axis",
+                        order: "seriesDesc",
+                        axisPointer: { type: "shadow" },
+                    },
+                    legend: {
+                        data: [
+                            "prometheus",
+                            "alertmanager",
+                            "kube-state-metrics",
+                            "node-exporter",
+                        ],
+                    },
+                    xAxis: [
+                        {
+                            type: "time",
+                        },
+                    ],
+                    yAxis: [
+                        {
+                            type: "value",
+                        },
+                    ],
+                    series: [
+                        {
+                            name: "prometheus",
+                            type: "line",
+                            stack: "total",
+                            stackPercent: true,
+                            areaStyle: {},
+                            data: [
+                                [1746523665000, 2.38860000000065],
+                                [1746523680000, 2.38860000000065],
+                                [1746523695000, 2.38860000000065],
+                                [1746523710000, 2.38860000000065],
+                                [1746523725000, 2.38860000000065],
+                                [1746523740000, 2.38415000000116],
+                            ],
+                        },
+                        {
+                            name: "alertmanager",
+                            type: "line",
+                            stack: "total",
+                            stackPercent: true,
+                            areaStyle: {},
+                            data: [
+                                [1746523665000, 0.015500000000000968],
+                                [1746523680000, 0.015500000000000968],
+                                [1746523695000, 0.015500000000000968],
+                                [1746523710000, 0.015500000000000968],
+                                [1746523725000, 0.015500000000000968],
+                                [1746523740000, 0.015549999999999406],
+                            ],
+                        },
+                        {
+                            name: "kube-state-metrics",
+                            type: "line",
+                            stack: "total",
+                            stackPercent: true,
+                            areaStyle: {},
+                            data: [
+                                [1746523665000, 0],
+                                [1746523680000, 0],
+                                [1746523695000, 0],
+                                [1746523710000, 0],
+                                [1746523725000, 0],
+                                [1746523740000, 0],
+                            ],
+                        },
+                        {
+                            name: "node-exporter",
+                            type: "line",
+                            stack: "total",
+                            stackPercent: true,
+                            areaStyle: {},
+                            data: [
+                                [1746523665000, 0.47871666666666474],
+                                [1746523680000, 0.47871666666666474],
+                                [1746523695000, 0.47871666666666474],
+                                [1746523710000, 0.47871666666666474],
+                                [1746523725000, 0.47871666666666474],
+                                [1746523740000, 0.4786833333333303],
+                            ],
+                        },
+                    ],
+                };
+                testHelper.create(echarts, "main7", {
+                    title: ["example 7: time axis - stackPercent: true"],
                     option,
                 });
             });
