@@ -7,7 +7,7 @@
 * "License"); you may not use this file except in compliance
 * with the License.  You may obtain a copy of the License at
 *
-*   http://www.apache.org/licenses/LICENSE-2.0
+* http://www.apache.org/licenses/LICENSE-2.0
 *
 * Unless required by applicable law or agreed to in writing,
 * software distributed under the License is distributed on an
@@ -160,18 +160,19 @@ export default function axisTrigger(
 
     // Process for triggered axes.
     each(coordSysAxesInfo.coordSysMap, function (coordSys, coordSysKey) {
-        // If a point given, it must be contained by the coordinate system.
         const coordSysContainsPoint = isIllegalPoint || coordSys.containPoint(point);
 
         each(coordSysAxesInfo.coordSysAxesInfo[coordSysKey], function (axisInfo, key) {
             const axis = axisInfo.axis;
             const inputAxisInfo = findInputAxisInfo(inputAxesInfo, axisInfo);
-            // If no inputAxesInfo, no axis is restricted.
+
             if (!shouldHide && coordSysContainsPoint && (!inputAxesInfo || inputAxisInfo)) {
                 let val = inputAxisInfo && inputAxisInfo.value;
+
                 if (val == null && !isIllegalPoint) {
                     val = axis.pointToData(point);
                 }
+                
                 val != null && processOnAxis(axisInfo, val, updaters, false, outputPayload);
             }
         });
@@ -209,7 +210,7 @@ export default function axisTrigger(
 }
 
 function processOnAxis(
-    axisInfo: CollectedCoordInfo['axesInfo'][string],
+    axisInfo: CollectedAxisInfo,
     newValue: AxisValue,
     updaters: {
         showPointer: Curry1<typeof showPointer, ShowValueMap>
@@ -219,39 +220,73 @@ function processOnAxis(
     outputFinder: ModelFinderObject
 ) {
     const axis = axisInfo.axis;
+    const isLinkedAxis = !!axisInfo.linkGroup;
+    const isAlwaysShow = axisInfo.axisPointerModel.get('alwaysShow'); // Get alwaysShow here
 
-    if (axis.scale.isBlank() || !axis.containData(newValue)) {
+    // P0: If the axis scale is blank, it means the axis itself is not valid.
+    if (axis.scale.isBlank()) {
         return;
     }
 
-    if (!axisInfo.involveSeries) {
-        updaters.showPointer(axisInfo, newValue);
+    // Determine if the `newValue` is within the *visual extent* of the axis.
+    const axisExtent = axis.scale.getExtent();
+    const extentMin = Math.min(axisExtent[0], axisExtent[1]);
+    const extentMax = Math.max(axisExtent[0], axisExtent[1]);
+    const valueNum = newValue as number;
+
+    // If the newValue is outside the *visual* range of the axis, then we should not show the pointer on THIS axis.
+    if ((axis.type === 'time' || axis.type === 'value') &&
+        !(valueNum >= extentMin && valueNum <= extentMax)
+    ) {
         return;
     }
 
-    // Heavy calculation. So put it after axis.containData checking.
-    const payloadInfo = buildPayloadsBySeries(newValue, axisInfo);
-    const payloadBatch = payloadInfo.payloadBatch;
-    const snapToValue = payloadInfo.snapToValue;
+    let payloadBatch: BatchItem[] = [];
+    let snapToValue: AxisValue = newValue;
 
-    // Fill content of event obj for echarts.connect.
-    // By default use the first involved series data as a sample to connect.
-    if (payloadBatch[0] && outputFinder.seriesIndex == null) {
-        extend(outputFinder, payloadBatch[0]);
+    if (axisInfo.involveSeries) {
+        const payloadInfo = buildPayloadsBySeries(newValue, axisInfo);
+        payloadBatch = payloadInfo.payloadBatch;
+        snapToValue = payloadInfo.snapToValue;
+
+        if (payloadBatch[0] && outputFinder.seriesIndex == null) {
+            extend(outputFinder, payloadBatch[0]);
+        }
     }
 
-    // If no linkSource input, this process is for collecting link
-    // target, where snap should not be accepted.
+    // P2: Apply snapping if enabled.
     if (!noSnap && axisInfo.snap) {
-        if (axis.containData(snapToValue) && snapToValue != null) {
+        if (snapToValue != null && axis.containData(snapToValue)) {
             newValue = snapToValue;
         }
     }
 
+    // P3: Crucial modification here for `alwaysShow` and linked axes.
+    // If the axis is alwaysShow and linked, and `payloadBatch` is empty,
+    // we need to provide a dummy payloadBatch to ensure the line is drawn.
+    // This is a known hack for this specific ECharts bug (issue comment provided in original prompt).
+    // This ensures `option.seriesDataIndices` is not empty, which might prevent the renderer
+    // from drawing the line when there's no data.
+    if (isAlwaysShow && isLinkedAxis && payloadBatch.length === 0 && axisInfo.involveSeries) {
+        const seriesModel = axisInfo.seriesModels && axisInfo.seriesModels[0];
+        if (seriesModel) {
+            // Provide a dummy dataIndex. The actual values (-1) don't matter as they won't be used
+            // for tooltip content (because showTooltip checks payloadBatch.length)
+            // or for highlight (if triggerEmphasis is false, or if it is filtered out).
+            // Its sole purpose is to make `option.seriesDataIndices` non-empty for the renderer.
+            payloadBatch.push({
+                seriesIndex: seriesModel.seriesIndex,
+                dataIndex: -1, 
+                dataIndexInside: -1
+            });
+        }
+    }
+
+    // Always call showPointer with the determined `newValue`.
     updaters.showPointer(axisInfo, newValue, payloadBatch);
-    // Tooltip should always be snapToValue, otherwise there will be
-    // incorrect "axis value ~ series value" mapping displayed in tooltip.
-    updaters.showTooltip(axisInfo, payloadInfo, snapToValue);
+
+    // Dispatch tooltip info.
+    updaters.showTooltip(axisInfo, { payloadBatch: payloadBatch }, snapToValue);
 }
 
 function buildPayloadsBySeries(value: AxisValue, axisInfo: CollectedAxisInfo) {
@@ -342,7 +377,10 @@ function showTooltip(
 
     // If no data, do not create anything in dataByCoordSys,
     // whose length will be used to judge whether dispatch action.
-    if (!axisInfo.triggerTooltip || !payloadBatch.length) {
+    // IMPORTANT: Only return here if payloadBatch is *truly* empty (no actual data points found).
+    // The dummy batch should NOT prevent the tooltip from being prepared with axis info.
+    if (!axisInfo.triggerTooltip || payloadBatch.filter(item => item.dataIndex !== -1).length === 0) {
+        // If triggerTooltip is false, or if after filtering dummies, no actual data points exist, then return.
         return;
     }
 
@@ -366,15 +404,12 @@ function showTooltip(
         axisType: axisModel.type,
         axisId: axisModel.id,
         value: value as number,
-        // Caustion: viewHelper.getValueLabel is actually on "view stage", which
-        // depends that all models have been updated. So it should not be performed
-        // here. Considering axisPointerModel used here is volatile, which is hard
-        // to be retrieve in TooltipView, we prepare parameters here.
         valueLabelOpt: {
             precision: axisPointerModel.get(['label', 'precision']),
             formatter: axisPointerModel.get(['label', 'formatter'])
         },
-        seriesDataIndices: payloadBatch.slice()
+        // Filter out dummy data indices here before passing to tooltip.
+        seriesDataIndices: payloadBatch.filter(item => item.dataIndex !== -1).slice() 
     });
 }
 
@@ -384,26 +419,39 @@ function updateModelActually(
     outputPayload: AxisTriggerPayload
 ) {
     const outputAxesInfo: AxisTriggerPayload['axesInfo'] = outputPayload.axesInfo = [];
-    // Basic logic: If no 'show' required, 'hide' this axisPointer.
     each(axesInfo, function (axisInfo, key) {
         const option = axisInfo.axisPointerModel.option;
         const valItem = showValueMap[key];
+        
+        const isAlwaysShow = axisInfo.axisPointerModel.get('alwaysShow');
 
-        if (valItem) {
-            !axisInfo.useHandle && (option.status = 'show');
+        if (valItem) { // Case 1: valItem (from processOnAxis) is present.
+            if (!axisInfo.useHandle) {
+                 option.status = 'show';
+            }
             option.value = valItem.value;
-            // For label formatter param and highlight.
+            // Always set seriesDataIndices based on valItem.payloadBatch.
+            // This now includes our dummy batch if applicable.
             option.seriesDataIndices = (valItem.payloadBatch || []).slice();
         }
-        // When always show (e.g., handle used), remain
-        // original value and status.
-        else {
-            // If hide, value still need to be set, consider
-            // click legend to toggle axis blank.
-            !axisInfo.useHandle && (option.status = 'hide');
+        else { // Case 2: valItem is null (processOnAxis was skipped or showPointer wasn't called)
+            if (isAlwaysShow) {
+                // If it's alwaysShow, ensure status is 'show'.
+                // Retain previous value and seriesDataIndices.
+                if (!axisInfo.useHandle) {
+                    option.status = 'show';
+                }
+                // option.value and option.seriesDataIndices should hold their last valid states.
+                // No need to set them here, as they would have been set in a prior frame when valItem was present.
+            } else {
+                // Not alwaysShow, and no valItem means hide.
+                !axisInfo.useHandle && (option.status = 'hide');
+                option.value = null; // Clear value when hiding
+                option.seriesDataIndices = []; // Clear indices when hiding
+            }
         }
 
-        // If status is 'hide', should be no info in payload.
+        // If status is 'show', add to output payload for connect.
         option.status === 'show' && outputAxesInfo.push({
             axisDim: axisInfo.axis.dim,
             axisIndex: axisInfo.axis.model.componentIndex,
@@ -418,16 +466,14 @@ function dispatchTooltipActually(
     payload: AxisTriggerPayload,
     dispatchAction: ExtensionAPI['dispatchAction']
 ) {
-    // Basic logic: If no showTip required, hideTip will be dispatched.
+    // If no dataByCoordSys.list.length, it means no axes or no tooltip-triggering data points found.
+    // If you want the tooltip to show ONLY if there's actual series data, then keep the `!dataByCoordSys.list.length` check.
+    // If you want the tooltip to show just axis info even with dummy data, then the filter in showTooltip takes care of it.
     if (illegalPoint(point) || !dataByCoordSys.list.length) {
-        dispatchAction({type: 'hideTip'});
-        return;
+         dispatchAction({type: 'hideTip'});
+         return;
     }
 
-    // In most case only one axis (or event one series is used). It is
-    // convenient to fetch payload.seriesIndex and payload.dataIndex
-    // directly. So put the first seriesIndex and dataIndex of the first
-    // axis on the payload.
     const sampleItem = ((dataByCoordSys.list[0].dataByAxis[0] || {}).seriesDataIndices || [])[0] || {} as DataIndex;
 
     dispatchAction({
@@ -437,6 +483,8 @@ function dispatchTooltipActually(
         y: point[1],
         tooltipOption: payload.tooltipOption,
         position: payload.position,
+        // The dataIndex and seriesIndex here might be from a dummy value if only dummy batch existed.
+        // The tooltip formatter should be robust to this.
         dataIndexInside: sampleItem.dataIndexInside,
         dataIndex: sampleItem.dataIndex,
         seriesIndex: sampleItem.seriesIndex,
@@ -449,23 +497,23 @@ function dispatchHighDownActually(
     dispatchAction: ExtensionAPI['dispatchAction'],
     api: ExtensionAPI
 ) {
-    // FIXME
-    // highlight status modification should be a stage of main process?
-    // (Consider confilct (e.g., legend and axisPointer) and setOption)
-
     const zr = api.getZr();
     const highDownKey = 'axisPointerLastHighlights' as const;
     const lastHighlights = inner(zr)[highDownKey] || {};
     const newHighlights: Dictionary<BatchItem> = inner(zr)[highDownKey] = {};
 
-    // Update highlight/downplay status according to axisPointer model.
-    // Build hash map and remove duplicate incidentally.
     each(axesInfo, function (axisInfo, key) {
         const option = axisInfo.axisPointerModel.option;
-        option.status === 'show' && axisInfo.triggerEmphasis && each(option.seriesDataIndices, function (batchItem) {
-            const key = batchItem.seriesIndex + ' | ' + batchItem.dataIndex;
-            newHighlights[key] = batchItem;
-        });
+        // Only highlight if status is 'show' AND it triggers emphasis.
+        if (option.status === 'show' && axisInfo.triggerEmphasis) {
+            each(option.seriesDataIndices, function (batchItem) {
+                // Filter out the dummy data index (-1) here before processing for highlight/downplay.
+                if (batchItem.dataIndex !== -1) {
+                    const key = batchItem.seriesIndex + ' | ' + batchItem.dataIndex;
+                    newHighlights[key] = batchItem;
+                }
+            });
+        }
     });
 
     // Diff.
@@ -515,7 +563,6 @@ function makeMapperParam(axisInfo: CollectedAxisInfo) {
         axisIndex: number
         axisId: string
         axisName: string
-        // TODO `dim`AxisIndex, `dim`AxisName, `dim`AxisId?
     };
     const dim = item.axisDim = axisInfo.axis.dim;
     item.axisIndex = (item as any)[dim + 'AxisIndex'] = axisModel.componentIndex;

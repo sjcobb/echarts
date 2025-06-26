@@ -150,7 +150,9 @@ class BaseAxisPointer implements AxisPointer {
         let group = this._group;
         const handle = this._handle;
 
-        if (!status || status === 'hide') {
+        const alwaysShow = true;
+
+        if (!status || (status === 'hide' && !alwaysShow)) {
             // Do not clear here, for animation better.
             group && group.hide();
             handle && handle.hide();
