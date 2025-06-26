@@ -158,21 +158,37 @@ export default function axisTrigger(
         showTooltip: curry(showTooltip, dataByCoordSys)
     };
 
+    // TODO: create real axisPointer.alwaysShow option
+    const alwaysShow = true;
+
     // Process for triggered axes.
     each(coordSysAxesInfo.coordSysMap, function (coordSys, coordSysKey) {
-        // If a point given, it must be contained by the coordinate system.
+        // FIX: Don't require point to be contained by coordinate system for connected charts
+        // If inputAxesInfo is provided (from connected chart), we should process the axis
+        // regardless of whether the point is contained by this coordinate system
         const coordSysContainsPoint = isIllegalPoint || coordSys.containPoint(point);
+        // const coordSysContainsPoint = alwaysShow || isIllegalPoint || coordSys.containPoint(point);
+        const hasInputAxesInfo = inputAxesInfo && inputAxesInfo.length > 0;
 
         each(coordSysAxesInfo.coordSysAxesInfo[coordSysKey], function (axisInfo, key) {
             const axis = axisInfo.axis;
             const inputAxisInfo = findInputAxisInfo(inputAxesInfo, axisInfo);
-            // If no inputAxesInfo, no axis is restricted.
-            if (!shouldHide && coordSysContainsPoint && (!inputAxesInfo || inputAxisInfo)) {
+
+            // FIX: Process axis if we have inputAxesInfo (from connected chart) even if point is not contained
+            // This allows axisPointer to show on charts that don't have data at the current position
+            if (alwaysShow
+                || (!shouldHide && (coordSysContainsPoint || hasInputAxesInfo) && (!inputAxesInfo || inputAxisInfo))) {
                 let val = inputAxisInfo && inputAxisInfo.value;
                 if (val == null && !isIllegalPoint) {
                     val = axis.pointToData(point);
                 }
-                val != null && processOnAxis(axisInfo, val, updaters, false, outputPayload);
+
+                // FIX: Process axis even if val is null when we have inputAxisInfo with a value
+                // This handles cases where connected charts have different data ranges
+                if (val != null || (inputAxisInfo && inputAxisInfo.value != null)) {
+                    const processValue = val != null ? val : inputAxisInfo.value;
+                    processOnAxis(axisInfo, processValue, updaters, false, outputPayload);
+                }
             }
         });
     });
