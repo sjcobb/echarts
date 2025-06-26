@@ -167,8 +167,8 @@ export default function axisTrigger(
         // If inputAxesInfo is provided (from connected chart), we should process the axis
         // regardless of whether the point is contained by this coordinate system
         const coordSysContainsPoint = isIllegalPoint || coordSys.containPoint(point);
-        // const coordSysContainsPoint = alwaysShow || isIllegalPoint || coordSys.containPoint(point);
-        const hasInputAxesInfo = inputAxesInfo && inputAxesInfo.length > 0;
+        // // const coordSysContainsPoint = alwaysShow || isIllegalPoint || coordSys.containPoint(point);
+        // const hasInputAxesInfo = inputAxesInfo && inputAxesInfo.length > 0;
 
         each(coordSysAxesInfo.coordSysAxesInfo[coordSysKey], function (axisInfo, key) {
             const axis = axisInfo.axis;
@@ -176,8 +176,9 @@ export default function axisTrigger(
 
             // FIX: Process axis if we have inputAxesInfo (from connected chart) even if point is not contained
             // This allows axisPointer to show on charts that don't have data at the current position
-            if (alwaysShow
-                || (!shouldHide && (coordSysContainsPoint || hasInputAxesInfo) && (!inputAxesInfo || inputAxisInfo))) {
+            // if (alwaysShow
+            //     || (!shouldHide && (coordSysContainsPoint || hasInputAxesInfo) && (!inputAxesInfo || inputAxisInfo))) {
+            if (alwaysShow || !shouldHide && coordSysContainsPoint && (!inputAxesInfo || inputAxisInfo)) {
                 let val = inputAxisInfo && inputAxisInfo.value;
                 if (val == null && !isIllegalPoint) {
                     val = axis.pointToData(point);
@@ -185,10 +186,11 @@ export default function axisTrigger(
 
                 // FIX: Process axis even if val is null when we have inputAxisInfo with a value
                 // This handles cases where connected charts have different data ranges
-                if (val != null || (inputAxisInfo && inputAxisInfo.value != null)) {
-                    const processValue = val != null ? val : inputAxisInfo.value;
-                    processOnAxis(axisInfo, processValue, updaters, false, outputPayload);
-                }
+                // if (val != null || (inputAxisInfo && inputAxisInfo.value != null)) {
+                //     const processValue = val != null ? val : inputAxisInfo.value;
+                //     processOnAxis(axisInfo, processValue, updaters, false, outputPayload);
+                // }
+                val != null && processOnAxis(axisInfo, val, updaters, false, outputPayload);
             }
         });
     });

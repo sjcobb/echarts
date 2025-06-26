@@ -1386,6 +1386,8 @@ type LabelFormatterParams = {
 export interface CommonAxisPointerOption {
     show?: boolean | 'auto'
 
+    alwaysShow?: boolean
+
     z?: number;
     zlevel?: number;
 
