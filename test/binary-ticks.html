@@ -43,19 +43,16 @@ under the License.
             require(["echarts"], function (echarts) {
                 var chart = echarts.init(document.getElementById("main"));
 
-                // Sample data representing memory usage in bytes
-                var data = [
+                var testData = [
                     { time: "09:17", memory: 45.2 * 1024 * 1024 * 1024 }, // 45.2 GiB
                     { time: "09:18", memory: 47.8 * 1024 * 1024 * 1024 }, // 47.8 GiB
                     { time: "09:19", memory: 49.1 * 1024 * 1024 * 1024 }, // 49.1 GiB
                     { time: "09:20", memory: 51.3 * 1024 * 1024 * 1024 }, // 51.3 GiB
                     { time: "09:21", memory: 53.7 * 1024 * 1024 * 1024 }, // 53.7 GiB
                 ];
+                var times = testData.map((item) => item.time);
+                var memoryValues = testData.map((item) => item.memory);
 
-                var times = data.map((item) => item.time);
-                var memoryValues = data.map((item) => item.memory);
-
-                // Chart configuration
                 var option = {
                     title: {
                         text: "Example 1: Binary Ticks vs. Decimal Ticks",
@@ -76,9 +73,6 @@ under the License.
                                 " bytes)"
                             );
                         },
-                    },
-                    legend: {
-                        data: ["Memory Usage"],
                     },
                     xAxis: {
                         type: "category",
@@ -172,8 +166,8 @@ under the License.
                     var num = val / Math.pow(1024, p);
                     var str =
                         num >= 10 || num % 1 === 0
-                            ? num.toFixed(0)
-                            : num.toFixed(2);
+                            ? num.toFixed(1)
+                            : num.toFixed(1);
                     return str + " " + units[p];
                 }
 
@@ -191,7 +185,6 @@ under the License.
                     },
                     xAxis: {
                         type: "time",
-                        axisLabel: { hideOverlap: true },
                     },
                     yAxis: {
                         type: "value",
@@ -202,9 +195,6 @@ under the License.
                         {
                             type: "line",
                             name: "Quota",
-                            showSymbol: true,
-                            symbolSize: 6,
-                            smooth: false,
                             data: seriesData,
                         },
                     ],
