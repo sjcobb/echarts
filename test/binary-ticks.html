@@ -1,0 +1,217 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <script src="lib/simpleRequire.js"></script>
+        <script src="lib/config.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <style>
+            html,
+            body,
+            #main,
+            #main2 {
+                width: 100%;
+                height: 300px;
+                margin-bottom: 30px;
+            }
+        </style>
+
+        <div id="main"></div>
+        <div id="main2"></div>
+
+        <script>
+            require(["echarts"], function (echarts) {
+                var chart = echarts.init(document.getElementById("main"));
+
+                // Sample data representing memory usage in bytes
+                var data = [
+                    { time: "09:17", memory: 45.2 * 1024 * 1024 * 1024 }, // 45.2 GiB
+                    { time: "09:18", memory: 47.8 * 1024 * 1024 * 1024 }, // 47.8 GiB
+                    { time: "09:19", memory: 49.1 * 1024 * 1024 * 1024 }, // 49.1 GiB
+                    { time: "09:20", memory: 51.3 * 1024 * 1024 * 1024 }, // 51.3 GiB
+                    { time: "09:21", memory: 53.7 * 1024 * 1024 * 1024 }, // 53.7 GiB
+                ];
+
+                var times = data.map((item) => item.time);
+                var memoryValues = data.map((item) => item.memory);
+
+                // Chart configuration
+                var option = {
+                    title: {
+                        text: "Example 1: Binary Ticks vs. Decimal Ticks",
+                    },
+                    tooltip: {
+                        trigger: "axis",
+                        formatter: function (params) {
+                            var value = params[0].value;
+                            var giB = value / (1024 * 1024 * 1024);
+                            return (
+                                params[0].name +
+                                "<br/>" +
+                                params[0].seriesName +
+                                ": " +
+                                giB.toFixed(2) +
+                                " GiB (" +
+                                value.toLocaleString() +
+                                " bytes)"
+                            );
+                        },
+                    },
+                    legend: {
+                        data: ["Memory Usage"],
+                    },
+                    xAxis: {
+                        type: "category",
+                        data: times,
+                    },
+                    yAxis: [
+                        {
+                            type: "value",
+                            show: true,
+                            name: "Memory (Binary Ticks)",
+                            nameLocation: "middle",
+                            nameGap: 50,
+                            binaryTicks: true,
+                            axisLabel: {
+                                formatter: function (value) {
+                                    var giB = value / (1024 * 1024 * 1024);
+                                    return giB.toFixed(2) + " GiB";
+                                },
+                            },
+                        },
+                        {
+                            type: "value",
+                            show: true,
+                            name: "Memory (Decimal Ticks)",
+                            nameLocation: "middle",
+                            nameGap: 50,
+                            binaryTicks: false,
+                            axisLabel: {
+                                formatter: function (value) {
+                                    var gb = value / (1000 * 1000 * 1000);
+                                    return gb.toFixed(2) + " GB";
+                                },
+                            },
+                        },
+                    ],
+                    series: [
+                        {
+                            name: "Memory Usage (Binary)",
+                            type: "line",
+                            data: memoryValues,
+                            yAxisIndex: 0,
+                        },
+                        {
+                            name: "Memory Usage",
+                            type: "line",
+                            data: memoryValues,
+                            yAxisIndex: 1,
+                        },
+                    ],
+                };
+                chart.setOption(option);
+                window.onresize = chart.resize;
+            });
+        </script>
+
+        <script>
+            require(["echarts"], function (echarts) {
+                var testMetricData = {
+                    status: "success",
+                    data: {
+                        resultType: "matrix",
+                        result: [
+                            {
+                                metric: {},
+                                values: [
+                                    [1755525810, "3848766.42"],
+                                    [1755525825, "3848750.42"],
+                                    [1755525840, "3245636.28"],
+                                    [1755525855, "2045636.28"],
+                                    [1755525870, "3845620.0433333335"],
+                                    [1755525885, "3845620.0433333335"],
+                                ],
+                            },
+                        ],
+                    },
+                };
+                function toTimeSeries(promMatrix) {
+                    var res = promMatrix.data.result[0] || { values: [] };
+                    return res.values.map(function (pair) {
+                        return [pair[0] * 1000, +pair[1]];
+                    });
+                }
+                var seriesData = toTimeSeries(testMetricData);
+
+                function fmtBinaryBytes(val) {
+                    var abs = Math.abs(val);
+                    var units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"];
+                    if (abs === 0) return "0 B";
+                    var p = Math.floor(Math.log(abs) / Math.log(1024));
+                    p = Math.max(0, Math.min(p, units.length - 1));
+                    var num = val / Math.pow(1024, p);
+                    var str =
+                        num >= 10 || num % 1 === 0
+                            ? num.toFixed(0)
+                            : num.toFixed(2);
+                    return str + " " + units[p];
+                }
+
+                var chart = echarts.init(document.getElementById("main2"));
+                var option = {
+                    title: {
+                        text: "Example 2: Binary Ticks",
+                    },
+                    tooltip: {
+                        trigger: "item",
+                        formatter: (params) => {
+                            var valueMiB = params.value[1] / 1024 / 1024;
+                            return `${params.seriesName}: ${valueMiB.toFixed(2)} MiB`;
+                        },
+                    },
+                    xAxis: {
+                        type: "time",
+                        axisLabel: { hideOverlap: true },
+                    },
+                    yAxis: {
+                        type: "value",
+                        binaryTicks: true,
+                        axisLabel: { formatter: fmtBinaryBytes },
+                    },
+                    series: [
+                        {
+                            type: "line",
+                            name: "Quota",
+                            showSymbol: true,
+                            symbolSize: 6,
+                            smooth: false,
+                            data: seriesData,
+                        },
+                    ],
+                };
+                window.onresize = chart.resize;
+                chart.setOption(option);
+            });
+        </script>
+    </body>
+</html>

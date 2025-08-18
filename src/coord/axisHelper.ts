@@ -169,6 +169,7 @@ export function niceScaleExtent(
 
     const scaleType = scale.type;
     const interval = model.get('interval');
+    const isInterval = scaleType === 'interval';
     const isIntervalOrTime = scaleType === 'interval' || scaleType === 'time';
 
     scale.setBreaksFromOption(retrieveAxisBreaksOption(model));
@@ -178,7 +179,8 @@ export function niceScaleExtent(
         fixMin: extentInfo.fixMin,
         fixMax: extentInfo.fixMax,
         minInterval: isIntervalOrTime ? model.get('minInterval') : null,
-        maxInterval: isIntervalOrTime ? model.get('maxInterval') : null
+        maxInterval: isIntervalOrTime ? model.get('maxInterval') : null,
+        binaryTicks: isInterval ? model.get('binaryTicks') : undefined
     });
 
     // If some one specified the min, max. And the default calculated interval

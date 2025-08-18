@@ -17,7 +17,7 @@
 * under the License.
 */
 
-import {getPrecision, round, nice, quantityExponent} from '../util/number';
+import {getPrecision, round, nice, niceBinary, quantityExponent} from '../util/number';
 import IntervalScale from './Interval';
 import LogScale from './Log';
 import type Scale from './Scale';
@@ -53,12 +53,15 @@ export function intervalScaleNiceTicks(
     spanWithBreaks: number,
     splitNumber: number,
     minInterval?: number,
-    maxInterval?: number
+    maxInterval?: number,
+    binaryTicks?: boolean
 ): intervalScaleNiceTicksResult {
 
     const result = {} as intervalScaleNiceTicksResult;
 
-    let interval = result.interval = nice(spanWithBreaks / splitNumber, true);
+    let interval = result.interval = binaryTicks
+        ? niceBinary(spanWithBreaks / splitNumber, true)
+        : nice(spanWithBreaks / splitNumber, true);
     if (minInterval != null && interval < minInterval) {
         interval = result.interval = minInterval;
     }
