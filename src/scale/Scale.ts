@@ -250,7 +250,7 @@ abstract class Scale<SETTING extends ScaleSettingDefault = ScaleSettingDefault> 
             fixMax?: boolean,
             minInterval?: number,
             maxInterval?: number,
-            binaryTicks?: boolean
+            intervalBase?: number
         }
     ): void;
 

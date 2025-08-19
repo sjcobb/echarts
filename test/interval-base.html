@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ECharts IntervalBase Test</title>
+        <script src="dist/echarts.min.js"></script>
+    </head>
+    <body>
+        <div id="chart" style="width: 800px; height: 400px"></div>
+
+        <script>
+            // Initialize the chart
+            var chart = echarts.init(document.getElementById("chart"));
+
+            // Sample data representing memory usage in bytes
+            var data = [
+                { time: "09:17", memory: 45.2 * 1024 * 1024 * 1024 }, // 45.2 GiB
+                { time: "09:18", memory: 47.8 * 1024 * 1024 * 1024 }, // 47.8 GiB
+                { time: "09:19", memory: 49.1 * 1024 * 1024 * 1024 }, // 49.1 GiB
+                { time: "09:20", memory: 51.3 * 1024 * 1024 * 1024 }, // 51.3 GiB
+                { time: "09:21", memory: 53.7 * 1024 * 1024 * 1024 }, // 53.7 GiB
+            ];
+
+            var times = data.map((item) => item.time);
+            var memoryValues = data.map((item) => item.memory);
+
+            // Chart configuration
+            var option = {
+                title: {
+                    text: "Memory Usage Comparison: Different Interval Bases",
+                },
+                tooltip: {
+                    trigger: "axis",
+                    formatter: function (params) {
+                        var value = params[0].value;
+                        var giB = value / (1024 * 1024 * 1024);
+                        return (
+                            params[0].name +
+                            "<br/>" +
+                            params[0].seriesName +
+                            ": " +
+                            giB.toFixed(2) +
+                            " GiB (" +
+                            value.toLocaleString() +
+                            " bytes)"
+                        );
+                    },
+                },
+                legend: {
+                    data: ["Memory Usage"],
+                },
+                xAxis: {
+                    type: "category",
+                    data: times,
+                },
+                yAxis: [
+                    {
+                        type: "value",
+                        name: "Memory (Decimal - Base 10)",
+                        nameLocation: "middle",
+                        nameGap: 50,
+                        intervalBase: 10, // Decimal intervals: 1, 2, 5 × 10^n
+                        axisLabel: {
+                            formatter: function (value) {
+                                var giB = value / (1024 * 1024 * 1024);
+                                return giB.toFixed(2) + " GiB";
+                            },
+                        },
+                    },
+                    {
+                        type: "value",
+                        name: "Memory (Binary - Base 2)",
+                        nameLocation: "middle",
+                        nameGap: 50,
+                        intervalBase: 2, // Binary intervals: 1, 2, 4, 8 × 2^n
+                        axisLabel: {
+                            formatter: function (value) {
+                                var giB = value / (1024 * 1024 * 1024);
+                                return giB.toFixed(2) + " GiB";
+                            },
+                        },
+                    },
+                ],
+                series: [
+                    {
+                        name: "Memory Usage (Decimal)",
+                        type: "line",
+                        data: memoryValues,
+                        yAxisIndex: 0,
+                    },
+                    {
+                        name: "Memory Usage (Binary)",
+                        type: "line",
+                        data: memoryValues,
+                        yAxisIndex: 1,
+                    },
+                ],
+            };
+
+            // Set the option and render the chart
+            chart.setOption(option);
+
+            // Log the tick values to console for comparison
+            setTimeout(function () {
+                console.log("Chart rendered with intervalBase option");
+                console.log(
+                    "Left Y-axis (Base 10):",
+                    chart
+                        .getModel()
+                        .getComponent("yAxis", 0)
+                        .axis.scale.getTicks()
+                        .map((t) => t.value)
+                );
+                console.log(
+                    "Right Y-axis (Base 2):",
+                    chart
+                        .getModel()
+                        .getComponent("yAxis", 1)
+                        .axis.scale.getTicks()
+                        .map((t) => t.value)
+                );
+            }, 1000);
+        </script>
+    </body>
+</html>

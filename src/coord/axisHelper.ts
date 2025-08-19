@@ -180,7 +180,7 @@ export function niceScaleExtent(
         fixMax: extentInfo.fixMax,
         minInterval: isIntervalOrTime ? model.get('minInterval') : null,
         maxInterval: isIntervalOrTime ? model.get('maxInterval') : null,
-        binaryTicks: isInterval ? model.get('binaryTicks') : undefined
+        intervalBase: isInterval ? model.get('intervalBase') : undefined
     });
 
     // If some one specified the min, max. And the default calculated interval

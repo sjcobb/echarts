@@ -568,6 +568,64 @@ export function niceBinary(val: number, round?: boolean): number {
 }
 
 /**
+ * Nice function for arbitrary base intervals
+ * @param val The value to make nice
+ * @param round Whether to round or ceiling
+ * @param base The base for intervals (e.g., 2 for binary, 8 for octal)
+ * @returns A nice value based on the specified base
+ */
+export function niceWithBase(val: number, round?: boolean, base: number = 2): number {
+    const expBase = Math.pow(base, Math.floor(Math.log(val) / Math.log(base)));
+    const f = val / expBase; // 1 <= f < base
+
+    // Define factors for different bases
+    let factors: number[];
+    if (base === 2) {
+        // Binary: 1, 2, 4, 8
+        factors = [1, 2, 4, 8];
+    }
+    else if (base === 8) {
+        // Octal: 1, 2, 4
+        factors = [1, 2, 4];
+    }
+    else if (base === 16) {
+        // Hex: 1, 2, 4, 8
+        factors = [1, 2, 4, 8];
+    }
+    else {
+        // Default: use base-1 factors
+        factors = [1, Math.floor(base / 2), base - 1];
+    }
+
+    let nf: number;
+    if (round) {
+        // Find the closest factor
+        let minDiff = Infinity;
+        for (const factor of factors) {
+            const diff = Math.abs(f - factor);
+            if (diff < minDiff) {
+                minDiff = diff;
+                nf = factor;
+            }
+        }
+    }
+    else {
+        // Find the next factor
+        for (const factor of factors) {
+            if (f <= factor) {
+                nf = factor;
+                break;
+            }
+        }
+        if (nf === undefined) {
+            nf = factors[0] * base;
+        }
+    }
+
+    return nf * expBase;
+}
+
+/**
  * This code was copied from "d3.js"
  * <https://github.com/d3/d3/blob/9cc9a875e636a1dcf36cc1e07bdf77e1ad6e2c74/src/arrays/quantile.js>.
  * See the license statement at the head of this file.

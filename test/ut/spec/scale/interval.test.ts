@@ -120,7 +120,7 @@ describe('scale_interval', function () {
 
         function doSingleTest(extent: [number, number], splitNumber: number): void {
             const span = extent[1] - extent[0];
-            const result = intervalScaleNiceTicks(extent, span, splitNumber, undefined, undefined, false);
+            const result = intervalScaleNiceTicks(extent, span, splitNumber, undefined, undefined, 10);
             const intervalPrecision = result.intervalPrecision;
             const resultInterval = result.interval;
             const niceTickExtent = result.niceTickExtent;
@@ -183,24 +183,24 @@ describe('scale_interval', function () {
             doRandomTest(200, 1, 20);
         });
 
-        it('binaryTicks', function () {
-            // Test binary ticks functionality
+                it('intervalBase', function () {
+            // Test intervalBase functionality
             const extent: [number, number] = [100, 1000];
             const span = extent[1] - extent[0];
-
+            
             // Test decimal ticks (default)
-            const decimalResult = intervalScaleNiceTicks(extent, span, 5, undefined, undefined, false);
+            const decimalResult = intervalScaleNiceTicks(extent, span, 5, undefined, undefined, 10);
             expect(decimalResult.interval).toBeGreaterThan(0);
-
+            
             // Test binary ticks
-            const binaryResult = intervalScaleNiceTicks(extent, span, 5, undefined, undefined, true);
+            const binaryResult = intervalScaleNiceTicks(extent, span, 5, undefined, undefined, 2);
             expect(binaryResult.interval).toBeGreaterThan(0);
-
+            
             // Binary intervals should produce different values than decimal intervals
             // Binary: 1, 2, 4, 8 × 2^n
             // Decimal: 1, 2, 5 × 10^n
             expect(binaryResult.interval).not.toEqual(decimalResult.interval);
-
+            
             // Verify binary intervals are powers of 2 or multiples of powers of 2
             const log2Interval = Math.log2(binaryResult.interval);
             const powerOf2 = Math.pow(2, Math.floor(log2Interval));
